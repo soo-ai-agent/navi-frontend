@@ -18,5 +18,11 @@
     "eslint/func-style": "off",
     "eslint/max-params": "off",
     "eslint/id-length": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["e2e/**"],
+      "rules": { "eslint/max-lines": "off" }
+    }
+  ]
 }
