@@ -7,7 +7,11 @@ import CatalogProductCard from "./CatalogProductCard";
 type Props = {readonly categories: readonly CatalogCategoryView[]; readonly pager: ReturnType<typeof useCatalogPager>};
 
 export default function CatalogCategories({categories, pager}: Props) {
-    const {active, dragging, pagerRef, tabsRef, select, onScroll, onPointerDown, onPointerMove, onPointerUp, onClickCapture} = pager;
+    const {
+        active, dragging, pagerRef, tabsRef, select, onScroll,
+        onTouchStart, onTouchEnd,
+        onPointerDown, onPointerMove, onPointerUp, onClickCapture,
+    } = pager;
 
     const tabViews: JSX.Element[] = [];
     const panelViews: JSX.Element[] = [];
@@ -40,6 +44,7 @@ export default function CatalogCategories({categories, pager}: Props) {
                 {tabViews}
             </div>
             <div className={dragging ? "catalog-pager dragging" : "catalog-pager"} ref={pagerRef} onScroll={onScroll}
+                onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd}
                 onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                 onPointerCancel={onPointerUp} onClickCapture={onClickCapture}>
                 {panelViews}
