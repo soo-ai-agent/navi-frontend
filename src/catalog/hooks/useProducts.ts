@@ -24,11 +24,9 @@ export function useProducts() {
     }, [load, cancel]);
 
     return {
-        state, retry,
+        state,
+        retry,
         content: {categories, pager},
-        calculation: {
-            state: comparison,
-            retry: load,
-        },
+        calculation: {state: comparison, retry: load},
     };
 }

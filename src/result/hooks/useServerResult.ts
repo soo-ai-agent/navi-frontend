@@ -27,7 +27,7 @@ export function useServerResult() {
     }, [hasResult, load, cancel]);
 
     const openProduct = useCallback((key: string): void => {
-        navigate(`/product/${encodeURIComponent(key)}`);
+        navigate(RoutePath.PRODUCT_DETAIL.replace(":name", encodeURIComponent(key)));
     }, [navigate]);
     const resume = useCallback((): void => {
         navigate(RoutePath.QUESTIONS);
