@@ -12,10 +12,13 @@ type DragStart = {
 /**
  * 입력칸을 위아래로 끌어 숫자를 바꾼다.
  *
- * 드래그 중에는 커서가 입력칸을 벗어나도 따라가야 해서 window 에 듣는다.
+ * 드래그 중에는 커서가 입력칸을 벗어나도 따라가야 하는데 React 이벤트는 요소 안에서만 오므로 window 에 직접 듣는다.
  * 기준점과 변경 통로를 누르는 순간 ref 에 담아 두므로, 다시 그려져도 리스너를 다시 달지 않는다.
  */
-export function useSliderDrag(slider: NumberSliderView | undefined, onChange: (value: string) => void) {
+export function useSliderDrag(
+    slider: NumberSliderView | undefined, // 드래그 범위가 없는 금액 질문은 slider 가 없다.
+    onChange: (value: string) => void,
+) {
     const [dragging, setDragging] = useState<boolean>(false);
     const start = useRef<DragStart | null>(null); // 드래그를 시작하기 전에는 기준점이 없다.
 
