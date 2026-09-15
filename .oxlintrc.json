@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc", "unicorn", "promise"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "pedantic": "error"
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["error", { "allowConstantExport": true }],
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-filename-extension": "off",
+    "eslint/no-inline-comments": "off",
+    "eslint/sort-keys": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/func-style": "off",
+    "eslint/max-params": "off",
+    "eslint/id-length": "off"
+  }
+}
