@@ -7,18 +7,6 @@ import type {AnswerEntry} from "../../question/types/recommendation";
 import type {WishRequestDTO, WishResponseDTO} from "../types/wish";
 import {isWishResponse} from "../types/wish";
 
-// 서버가 안내 문구를 보내면 그대로 쓰고, 본문을 읽지 못하면 기본 안내를 쓴다.
-async function unavailableMessage(response: Response): Promise<string> {
-    try {
-        const payload: unknown = await response.json();
-        if (isJsonObject(payload) && isFilledText(payload.detail)) {
-            return payload.detail;
-        }
-    } catch {
-        // 본문이 JSON 이 아니면 기본 안내를 쓴다.
-    }
-    return WishMessages.SERVER_ERROR;
-}
 export async function requestWish(request: WishRequestDTO): Promise<WishResponseDTO> {
     let response: Response;
     try {
@@ -39,16 +27,30 @@ export async function requestWish(request: WishRequestDTO): Promise<WishResponse
     if (!response.ok) {
         throw new ServiceError(WishMessages.SERVER_ERROR);
     }
+    // 외부 JSON 은 DTO 모양을 보장하지 않는다 — 검사 함수를 통과한 뒤에만 화면으로 넘긴다.
+    let payload: unknown;
     try {
-        // 외부 JSON은 DTO 타입을 보장하지 않으므로 검증 이후에만 UI로 전달한다.
-        const payload: unknown = await response.json();
-        if (isWishResponse(payload)) {
-            return payload;
-        }
+        payload = await response.json();
     } catch {
         throw new ServiceError(WishMessages.RESPONSE_ERROR);
     }
-    throw new ServiceError(WishMessages.RESPONSE_ERROR);
+    if (!isWishResponse(payload)) {
+        throw new ServiceError(WishMessages.RESPONSE_ERROR);
+    }
+    return payload;
+}
+// 서버가 안내 문구를 보내면 그대로 쓰고, 본문을 읽지 못하면 기본 안내를 쓴다.
+async function unavailableMessage(response: Response): Promise<string> {
+    try {
+        // 503 본문은 자유 형식이라 detail 필드가 있는지만 확인한다.
+        const payload: unknown = await response.json();
+        if (isJsonObject(payload) && isFilledText(payload.detail)) {
+            return payload.detail;
+        }
+    } catch {
+        // 본문이 JSON 이 아니면 기본 안내를 쓴다.
+    }
+    return WishMessages.SERVER_ERROR;
 }
 // 문장에서 추출된 답을 기존 질문 세션에 넣어 두면, 버튼 질문 화면이 그 답 다음 질문부터 이어간다.
 export function prefillWishAnswers(answers: Readonly<Record<string, string>>): void {
@@ -57,7 +59,7 @@ export function prefillWishAnswers(answers: Readonly<Record<string, string>>): v
     }));
     saveRecommendation({entries, response: null});
 }
-// catch는 네트워크 실패 등 임의의 예외를 받을 수 있으므로 여기에서 사용자 메시지로 좁힌다.
+// catch 는 임의의 예외를 받으므로 여기에서 사용자 메시지로 좁힌다.
 export function wishError(error: unknown): string {
     if (error instanceof ServiceError) {
         return error.message;

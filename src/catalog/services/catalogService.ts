@@ -9,6 +9,20 @@ import {productComparisonSummary} from "../../product/services/comparisonViewSer
 import type {CatalogCategoryView, CatalogCardView, CatalogProductResponseDTO, CatalogRateOptionResponseDTO, CatalogRateView} from "../types/catalog";
 import {isCatalogProduct, isProductCatalog} from "../types/catalog";
 
+const RESERVE_LABELS: Readonly<Record<ReserveType, string>> = {
+    [ReserveType.FIXED]: CatalogMessages.FIXED,
+    [ReserveType.FREE]: CatalogMessages.FREE,
+};
+const CALCULATION_LABELS: Readonly<Record<InterestCalcType, string>> = {
+    [InterestCalcType.SIMPLE]: CatalogMessages.SIMPLE,
+    [InterestCalcType.COMPOUND]: CatalogMessages.COMPOUND,
+};
+const RESTRICTION_LABELS: Readonly<Record<JoinRestriction, string>> = {
+    [JoinRestriction.ANYONE]: CatalogMessages.ANYONE,
+    [JoinRestriction.LOW_INCOME_ONLY]: CatalogMessages.LOW_INCOME,
+    [JoinRestriction.PARTIAL]: CatalogMessages.PARTIAL,
+};
+
 export async function getCatalogProducts(): Promise<readonly CatalogProductResponseDTO[]> {
     let response: Response;
     try {
@@ -19,18 +33,19 @@ export async function getCatalogProducts(): Promise<readonly CatalogProductRespo
     if (!response.ok) {
         throw new ServiceError(CatalogMessages.LOAD_ERROR);
     }
+    // 외부 JSON 은 DTO 모양을 보장하지 않는다 — 검사 함수를 통과한 뒤에만 화면으로 넘긴다.
+    let payload: unknown;
     try {
-        // HTTP JSON은 DTO를 보장하지 않아 검증을 통과한 원형만 화면에 넘긴다.
-        const payload: unknown = await response.json();
-        if (isProductCatalog(payload)) {
-            return payload.products;
-        }
+        payload = await response.json();
     } catch {
         throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
     }
-    throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
+    if (!isProductCatalog(payload)) {
+        throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
+    }
+    return payload.products;
 }
-/** 주소로 직접 들어오면 없는 상품일 수 있다. 서버가 404로 알려주면 "없음"으로 좁힌다. */
+// 주소로 직접 들어오면 없는 상품일 수 있다 — 서버의 404 는 실패가 아니라 "없음"이라 undefined 로 돌려준다.
 export async function getCatalogProduct(productId: string): Promise<CatalogProductResponseDTO | undefined> {
     let response: Response;
     try {
@@ -44,42 +59,49 @@ export async function getCatalogProduct(productId: string): Promise<CatalogProdu
     if (!response.ok) {
         throw new ServiceError(CatalogMessages.LOAD_ERROR);
     }
+    // 외부 JSON 은 DTO 모양을 보장하지 않는다 — 검사 함수를 통과한 뒤에만 화면으로 넘긴다.
+    let payload: unknown;
     try {
-        const payload: unknown = await response.json();
-        if (isCatalogProduct(payload)) {
-            return payload;
-        }
+        payload = await response.json();
     } catch {
         throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
     }
-    throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
+    if (!isCatalogProduct(payload)) {
+        throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
+    }
+    return payload;
+}
+
+export function catalogCard(product: CatalogProductResponseDTO): CatalogCardView {
+    const detailPath: string = RoutePath.PRODUCT_DETAIL.replace(":name", encodeURIComponent(product.product_id));
+    return {
+        product_id: product.product_id,
+        bank_code: product.bank_code,
+        title: product.product_name,
+        bank: product.bank_name,
+        rate: highestRateText(product.rate_options),
+        terms: termsText(product.rate_options),
+        limit: monthlyLimitText(product.monthly_limit_status, product.monthly_limit),
+        comparison: {status: ComparisonViewStatus.LOADING, message: ComparisonMessages.LOADING},
+        href: `${detailPath}?product_id=${encodeURIComponent(product.product_id)}`,
+    };
 }
 // 공시 금리는 정밀도를 보존한 문자열로 오므로 최대값 비교에서만 숫자로 읽는다.
 function highestRateText(options: readonly CatalogRateOptionResponseDTO[]): string {
-    const rates: readonly number[] = options.map((option: CatalogRateOptionResponseDTO) => Number(option.max_rate));
-    if (rates.length === 0) {
+    if (options.length === 0) {
         return CatalogMessages.NO_DISCLOSURE;
     }
+    const rates: readonly number[] = options.map((option: CatalogRateOptionResponseDTO) => Number(option.max_rate));
     const highest: CatalogRateOptionResponseDTO = options[rates.indexOf(Math.max(...rates))];
     return `연 ${highest.max_rate}%`;
 }
 function termsText(options: readonly CatalogRateOptionResponseDTO[]): string {
+    if (options.length === 0) {
+        return CatalogMessages.NO_DISCLOSURE;
+    }
     const months: readonly number[] = options.map((option: CatalogRateOptionResponseDTO) => option.saving_term_months);
-    const sorted: readonly number[] = [...new Set(months)].toSorted((left: number, right: number) => left - right);
-    return sorted.length === 0 ? CatalogMessages.NO_DISCLOSURE : `${sorted.join(" · ")}개월`;
-}
-function detailHref(productId: string): string {
-    const path: string = RoutePath.PRODUCT_DETAIL.replace(":name", encodeURIComponent(productId));
-    return `${path}?product_id=${encodeURIComponent(productId)}`;
-}
-export function catalogCard(product: CatalogProductResponseDTO): CatalogCardView {
-    return {
-        product_id: product.product_id, bank_code: product.bank_code, title: product.product_name, bank: product.bank_name,
-        rate: highestRateText(product.rate_options), terms: termsText(product.rate_options),
-        limit: monthlyLimitText(product.monthly_limit_status, product.monthly_limit),
-        comparison: {status: ComparisonViewStatus.LOADING, message: ComparisonMessages.LOADING},
-        href: detailHref(product.product_id),
-    };
+    const sortedMonths: readonly number[] = [...new Set(months)].toSorted((left: number, right: number) => left - right);
+    return `${sortedMonths.join(" · ")}개월`;
 }
 // 한도 유무는 상태가 정본이고 금액은 LIMITED 일 때만 뜻이 있다 — 순위·전체목록 두 응답이 같은 규칙을 쓴다.
 export function monthlyLimitText(status: MonthlyLimitStatus, amount: number): string {
@@ -89,25 +111,17 @@ export function monthlyLimitText(status: MonthlyLimitStatus, amount: number): st
     return `${amount.toLocaleString("ko-KR")}원`;
 }
 export function catalogRateRows(product: CatalogProductResponseDTO): readonly CatalogRateView[] {
-    const reserveLabels: Readonly<Record<ReserveType, string>> = {
-        [ReserveType.FIXED]: CatalogMessages.FIXED, [ReserveType.FREE]: CatalogMessages.FREE,
-    };
-    const calculationLabels: Readonly<Record<InterestCalcType, string>> = {
-        [InterestCalcType.SIMPLE]: CatalogMessages.SIMPLE, [InterestCalcType.COMPOUND]: CatalogMessages.COMPOUND,
-    };
     return product.rate_options.map((option: CatalogRateOptionResponseDTO): CatalogRateView => ({
         key: `${option.saving_term_months}:${option.reserve_type}:${option.interest_calc_type}`,
-        term: `${option.saving_term_months}개월`, reserve: reserveLabels[option.reserve_type],
-        calculation: calculationLabels[option.interest_calc_type], base: `${option.base_rate}%`, maximum: `${option.max_rate}%`,
+        term: `${option.saving_term_months}개월`,
+        reserve: RESERVE_LABELS[option.reserve_type],
+        calculation: CALCULATION_LABELS[option.interest_calc_type],
+        base: `${option.base_rate}%`,
+        maximum: `${option.max_rate}%`,
     }));
 }
 export function joinRestrictionText(restriction: JoinRestriction): string {
-    const restrictions: Readonly<Record<JoinRestriction, string>> = {
-        [JoinRestriction.ANYONE]: CatalogMessages.ANYONE,
-        [JoinRestriction.LOW_INCOME_ONLY]: CatalogMessages.LOW_INCOME,
-        [JoinRestriction.PARTIAL]: CatalogMessages.PARTIAL,
-    };
-    return restrictions[restriction];
+    return RESTRICTION_LABELS[restriction];
 }
 export function disclosed(value: string): string {
     return value.trim() === "" ? CatalogMessages.NO_DISCLOSURE : value;
@@ -124,15 +138,26 @@ export function catalogHomepage(value: string): string {
     return "";
 }
 
-export function catalogCategories(source: readonly CatalogProductResponseDTO[], comparison: ComparisonState, plan: ComparisonPlan): readonly CatalogCategoryView[] {
-    const query: URLSearchParams = new URLSearchParams({monthly: plan.monthly, months: plan.months});
+// 전체 목록은 "모든 은행" 카테고리 하나 뒤에 은행별 카테고리를 공시 순서대로 붙인다.
+export function catalogCategories(
+    source: readonly CatalogProductResponseDTO[],
+    comparison: ComparisonState,
+    plan: ComparisonPlan,
+): readonly CatalogCategoryView[] {
+    const planQuery: URLSearchParams = new URLSearchParams({monthly: plan.monthly, months: plan.months});
     const cards: readonly CatalogCardView[] = source.map((product: CatalogProductResponseDTO): CatalogCardView => {
         const card: CatalogCardView = catalogCard(product);
-        return {...card, href: `${card.href}&${query}`, comparison: productComparisonSummary(comparison, product.product_id, plan.months)};
+        return {
+            ...card,
+            href: `${card.href}&${planQuery}`,
+            comparison: productComparisonSummary(comparison, product.product_id, plan.months),
+        };
     });
-    const bankNames: Map<string, string> = new Map(source.map((product: CatalogProductResponseDTO): readonly [string, string] => [product.bank_code, product.bank_name]));
 
     const categories: CatalogCategoryView[] = [{key: "all", title: ComparisonMessages.ALL_BANKS, cards}];
+    const bankNames: Map<string, string> = new Map(
+        source.map((product: CatalogProductResponseDTO): readonly [string, string] => [product.bank_code, product.bank_name]),
+    );
     for (const [bankCode, bankName] of bankNames) {
         categories.push({key: bankCode, title: bankName, cards: cards.filter((card: CatalogCardView) => card.bank_code === bankCode)});
     }
