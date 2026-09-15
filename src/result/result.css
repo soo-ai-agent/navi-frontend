@@ -1,0 +1,125 @@
+
+/* ── 추천 카드 ────────────────────────────────────── */
+.cards {
+    margin-top: 12px;
+}
+.result-summary-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--g100);
+    color: var(--g700);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+}
+.result-summary-link::after {
+    content: "›";
+    color: var(--g500);
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1;
+}
+.result-summary-link:active {
+    background: var(--g200);
+}
+.cards .pickcard:first-child {
+    margin-top: 0;
+}
+.pickcard {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-areas: "rank head" "rank name" "summary summary";
+    column-gap: 10px;
+    text-align: left;
+    border: 1px solid var(--g200);
+    border-radius: 14px;
+    background: #fff;
+    padding: 12px 14px;
+    margin-top: 10px;
+    color: var(--g900);
+    cursor: pointer;
+    animation: rise 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+}
+.pickcard.first {
+    border-color: var(--blue);
+    box-shadow: 0 8px 24px rgba(242, 169, 0, 0.14);
+}
+.pickcard:active {
+    transform: scale(0.99);
+}
+.pc-rank {
+    grid-area: rank;
+    align-self: start;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 99px;
+    background: var(--g100);
+    color: var(--g700);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+}
+.pickcard.first .pc-rank {
+    background: var(--blue);
+    color: #fff;
+}
+.pc-head {
+    grid-area: head;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.pc-bank {
+    font-size: 12px;
+    color: var(--g500);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.pc-name {
+    grid-area: name;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.35;
+    margin-top: 1px;
+}
+.pickcard .comparison-summary {
+    grid-area: summary;
+}
+
+.result-condition-meta > span {
+    display: block;
+}
+
+/* ── 목록 줄 ──────────────────────────────────────── */
+.item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    background: none;
+    color: inherit;
+    border: 0;
+    border-bottom: 1px solid var(--g100);
+    cursor: pointer;
+}
+#more + .item,
+.card + .item {
+    margin-top: 12px;
+}
+/* button 자식은 span — div 시절의 줄 차지 유지 */
+.item .n,
+.item .s,
+.pc-rank,
+.pc-name {
+    display: block;
+}
