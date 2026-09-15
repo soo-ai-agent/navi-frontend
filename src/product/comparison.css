@@ -1,0 +1,30 @@
+.comparison-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(100px, .6fr); gap: 12px; }
+.comparison-form label { display: grid; gap: 6px; min-width: 0; font-size: 13px; color: var(--g700); }
+.comparison-form input, .comparison-form select { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px; border: 1px solid var(--g200); border-radius: 8px; font: inherit; color: var(--g900); background: #fff; }
+.comparison-form .cta, .comparison-form-note { grid-column: 1 / -1; margin: 0; }
+.comparison-form-monthly { grid-column: 1 / -1; min-width: 0; }
+.comparison-form-monthly > .cap { margin: 0 0 8px; }
+.comparison-form .answer-number-value { font-size: 20px; }
+.comparison-form .cta:disabled { opacity: .45; cursor: not-allowed; }
+.comparison-summary { display: block; margin-top: 10px; overflow-wrap: anywhere; }
+.comparison-eligibility { display: inline-block; flex: none; border-radius: 99px; padding: 3px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--g100); color: var(--g700); }
+.comparison-eligibility[data-status="ELIGIBLE"] { background: #eaf5ed; color: #246a3c; }
+.comparison-eligibility[data-status="NEEDS_CONFIRMATION"] { background: #fff3cc; color: #775c0b; }
+.comparison-eligibility[data-status="NOT_ELIGIBLE"] { background: #fbe9e9; color: #924343; }
+
+.comparison-rates { display: block; }
+.comparison-rate-line { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.comparison-rate-mine { font-size: 24px; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); }
+.comparison-rate-max { white-space: nowrap; }
+.comparison-meter { display: block; width: 100%; height: 5px; margin-top: 6px; border-radius: 99px; overflow: hidden; background: var(--g200); }
+.comparison-meter-fill { display: block; height: 100%; background: var(--blue); border-radius: inherit; }
+
+.comparison-maturity { display: grid; gap: 9px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g100); }
+.comparison-maturity-item { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; font-size: 14px; color: var(--g700); }
+.comparison-maturity-item .cap { flex: none; margin: 0; font-size: 12px; }
+.comparison-maturity-item > :last-child { min-width: 0; text-align: right; font-weight: 600; color: var(--g900); overflow-wrap: anywhere; }
+.comparison-maturity-item.is-mine strong { font-size: 18px; letter-spacing: -0.02em; color: var(--ink); }
+.comparison-pending { display: block; margin-top: 8px; white-space: pre-line; }
+
+.comparison-rate-label { display: block; margin-bottom: 2px; }
+.comparison-goal { display: block; margin-top: 8px; font-weight: 600; }

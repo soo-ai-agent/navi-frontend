@@ -1,0 +1,201 @@
+.product-footnote {
+    margin-top: 16px;
+}
+.product-info-rows {
+    margin: 0;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+.product-info-rows dd { margin: 0; }
+.product-join-link { margin-top: 4px; }
+.product-join-link .cta { display: block; text-align: center; text-decoration: none; }
+.product-join-link .cap { margin: 10px 0 0; text-align: center; }
+.product-homepage { margin: 10px 0 0; }
+.product-rate-card {
+    padding: 4px 18px 8px;
+}
+.product-plan-note {
+    margin: 10px 0;
+}
+
+/* ── 히어로 카드·가입 경로 ─────────────────────────── */
+.detail {
+    padding: 0 0 18px;
+}
+.card.hero {
+    background: #fff;
+    border: 2px solid var(--blue);
+    box-shadow: 0 8px 24px rgba(242, 169, 0, 0.14);
+}
+.card.hero .big {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 4px 0 2px;
+}
+.card.hero .s {
+    color: var(--g700);
+    font-size: 13px;
+}
+.card.hero .s b {
+    color: var(--g900);
+}
+.ways {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.way {
+    font-size: 12px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--g200);
+    color: var(--g700);
+}
+
+/* ── 기간별 금리표·가입 안내 ───────────────────────── */
+.rates {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.rates th {
+    font-weight: 500;
+    color: var(--g500);
+    text-align: left;
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--g200);
+}
+.rates td {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--g100);
+}
+.rates tr:last-child td {
+    border-bottom: 0;
+}
+.rates tr.me td {
+    font-weight: 700;
+    color: var(--ink);
+}
+.rates th:nth-child(n+4),
+.rates td:nth-child(n+4) {
+    text-align: right;
+}
+.kv {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--g100);
+    font-size: 14px;
+}
+.kv:last-child {
+    border-bottom: 0;
+}
+.kv .k {
+    flex: 0 0 72px;
+    color: var(--g500);
+}
+.kv .v {
+    flex: 1;
+    color: var(--g900);
+    white-space: pre-line;
+}
+.kv a {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* ── 탭 페이저 ────────────────────────────────────── */
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 22px;
+    border-bottom: 1px solid var(--g200);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+    display: none;
+}
+.tab {
+    flex: none;
+    border: 0;
+    background: none;
+    padding: 10px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--g500);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.tab.on {
+    color: var(--g900);
+    font-weight: 700;
+    border-bottom-color: var(--blue);
+}
+.pager {
+    display: flex;
+    /* 각 탭이 제 내용만큼만 높이를 갖게 한다 — 기본 stretch 면 가장 긴 탭에 모두 맞춰진다. */
+    align-items: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 24px;
+    width: 100%;
+}
+.pager::-webkit-scrollbar {
+    display: none;
+}
+.pane {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+.pane .cap.sec {
+    margin-top: 14px;
+}
+.dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 20px 0;
+}
+.dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--g200);
+}
+.dots i.on {
+    background: var(--blue);
+    width: 16px;
+    border-radius: 3px;
+}
+
+.product-server-title { margin-top: 28px; font-size: 19px; }
+.product-server-bonuses { list-style: none; }
+.product-server-bonus-status { display: block; }
+.product-server-source { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+#detail .kv .v { min-width: 0; overflow-wrap: anywhere; }
+#detail .product-server-bonuses .l { min-width: 0; overflow-wrap: anywhere; }
+#detail .hero { overflow-wrap: anywhere; }
+.hero-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#detail .rates { table-layout: fixed; }
+
+.product-eligibility-notice { display: grid; gap: 8px; margin-bottom: 12px; }
+.product-eligibility-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; }
+.product-eligibility-reasons { margin: 0; padding-left: 18px; font-size: 13px; color: var(--g700); }
+.product-eligibility-reasons li { margin-top: 4px; }
+.product-plan-controls { display: grid; gap: 10px; margin-bottom: 12px; }
+.product-term-select { display: grid; gap: 6px; font-size: 13px; }
+.product-term-select select { padding: 10px; border: 1px solid var(--g200); border-radius: 8px; font: inherit; background: #fff; }
+.product-option-select { display: grid; gap: 6px; font-size: 13px; }
+.product-option-select select { padding: 10px; border: 1px solid var(--g200); border-radius: 8px; font: inherit; background: #fff; }
