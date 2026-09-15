@@ -1,0 +1,76 @@
+/* Questions 화면 전용 — 클래스는 question- 접두사 */
+
+/* ── 진행바 ───────────────────────────────────────── */
+.bar {
+    height: 4px;
+    background: var(--g100);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 0 32px;
+}
+.bar i {
+    display: block;
+    height: 100%;
+    background: var(--blue);
+    width: 0;
+    transition: width 0.35s ease;
+}
+
+/* 남은 질문 개수를 모르는 구간: 채움 비율 대신 좌우로 흐르는 띠 */
+.bar-unknown-end i {
+    width: 40%;
+    animation: bar-slide 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes bar-slide {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(250%);
+    }
+}
+.opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 14px;
+    background: var(--g100);
+    color: var(--g900);
+    font-size: 17px;
+    font-weight: 500;
+    padding: 18px 20px;
+    margin-top: 10px;
+}
+.opt:active {
+    background: var(--g200);
+}
+.field {
+    margin-top: 16px;
+}
+.field input {
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid var(--g200);
+    border-radius: 0;
+    font: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    padding: 10px 0;
+    color: var(--g900);
+    background: none;
+}
+.field input:focus {
+    border-bottom-color: var(--blue);
+    outline: 0;
+}
+.field input::placeholder {
+    color: var(--g200);
+    font-weight: 500;
+}
+
+.question-server-form h1 { margin: 36px 0 28px; line-height: 1.4; }
+.question-server-options { display: grid; gap: 12px; margin-top: 28px; }
+.question-server-form .cta:disabled { opacity: 0.45; cursor: not-allowed; }
+.question-server-form input { width: 100%; }

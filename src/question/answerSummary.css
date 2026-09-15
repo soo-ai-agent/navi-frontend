@@ -1,0 +1,45 @@
+.answer-summary-rows {
+    display: grid;
+    gap: 0;
+    margin: 20px 0 24px;
+    text-align: left;
+}
+
+.answer-summary-rows.card {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.answer-summary-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: start;
+    gap: 20px;
+    padding: 16px 2px;
+    border-bottom: 1px solid var(--g100);
+}
+
+.answer-summary-row:last-child {
+    border-bottom: 0;
+}
+
+.answer-summary-row > dt,
+.answer-summary-row > dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.answer-summary-row > dd {
+    color: var(--g900);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: right;
+}
+
+#answer-summary > .text-btn {
+    display: block;
+    margin: 12px auto 0;
+}
