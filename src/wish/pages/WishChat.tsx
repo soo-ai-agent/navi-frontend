@@ -19,8 +19,8 @@ export default function WishChat() {
             <h1>{WishMessages.TITLE}</h1>
             <p className="sub">{WishMessages.HELP}</p>
             <div className="wish-chat" ref={chatRef}>
-                {chat.turns.map((turn) => (
-                    <WishTurnBubbles key={turn.id} turn={turn} />
+                {chat.turns.map((turn, index) => (
+                    <WishTurnBubbles key={turn.id} turn={turn} isLast={index === chat.turns.length - 1} />
                 ))}
                 {chat.state.status === RequestStatus.READY && chat.step.status === WishStepStatus.QUESTION && (
                     <WishQuestionBubble question={chat.step.question}
