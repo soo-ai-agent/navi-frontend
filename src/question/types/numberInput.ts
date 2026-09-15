@@ -19,7 +19,6 @@ export type NumberSliderView = {
 };
 
 export type NumberInputView = {
-    readonly value: string;
     /** 드래그 범위가 없는 질문은 항목이 비어 있다 — 금액처럼 범위가 넓으면 드래그가 무의미하다. */
     readonly sliders: readonly NumberSliderView[];
     readonly chips: readonly NumberChipView[];
