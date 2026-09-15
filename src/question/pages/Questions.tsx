@@ -1,6 +1,8 @@
 import "../question.css";
 import "../answer.css";
+import {Link} from "react-router-dom";
 import BrandHome from "../../common/components/BrandHome";
+import {RoutePath} from "../../common/enums/routePath";
 import {NextStepStatus, RecommendationMessages, RequestStatus} from "../enums/recommendation";
 import QuestionProgressBar from "../components/QuestionProgressBar";
 import ServerQuestionForm from "../components/ServerQuestionForm";
@@ -22,7 +24,9 @@ export default function Questions() {
             {state.status === RequestStatus.ERROR && (
                 <div className="notice">
                     <p role="alert">{state.message}</p>
+                    <p className="s">{RecommendationMessages.BLOCKED_HELP}</p>
                     <button className="cta" onClick={actions.retry}>{RecommendationMessages.RETRY}</button>
+                    <Link className="text-btn" to={RoutePath.PRODUCTS}>{RecommendationMessages.ALL_PRODUCTS}</Link>
                 </div>
             )}
             {state.status === RequestStatus.READY && state.response.status === NextStepStatus.QUESTION && (

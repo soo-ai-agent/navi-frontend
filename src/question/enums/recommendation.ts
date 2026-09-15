@@ -41,6 +41,7 @@ export enum RecommendationMessages {
     SKIP = "건너뛰기",
     NEXT = "다음",
     RETRY = "다시 시도",
+    BLOCKED_HELP = "질문을 이어가지 못하고 있어요. 다시 시도하거나 전체 상품에서 직접 골라볼 수 있어요.",
     LOADING = "조건을 확인하고 있어요.",
     NETWORK_ERROR = "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
     CONDITIONS_UNAVAILABLE = "상품 조건 데이터를 확인할 수 없어 비교할 수 없어요. 잠시 후 다시 시도해 주세요.",
