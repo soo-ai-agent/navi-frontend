@@ -12,6 +12,7 @@ export enum WishMessages {
     UNMAPPED_TITLE = "상품 데이터로 확인하지 못한 요구예요.",
     NETWORK_ERROR = "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
     INPUT_ERROR = "문장을 이해하지 못했어요. 다르게 적어 다시 보내 주세요.",
+    AI_UNAVAILABLE = "AI 사용이 현재 어려워 문장 추천이 안 되고 있어요. 잠시 후 다시 시도하시거나, 버튼으로 질문에 답하시면 바로 추천받을 수 있어요.",
     SERVER_ERROR = "상황을 분석하지 못했어요. 잠시 후 다시 시도해 주세요.",
     RESPONSE_ERROR = "응답을 읽지 못했어요. 다시 시도해 주세요.",
 }

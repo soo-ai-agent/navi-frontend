@@ -29,6 +29,10 @@ export async function requestWish(request: WishRequestDTO): Promise<WishResponse
     if (response.status === 422) {
         throw new ServiceError(WishMessages.INPUT_ERROR);
     }
+    // 502 는 백엔드가 AI(LLM) 호출 실패에만 쓰는 상태코드다 — web/exception_handler.py 의 WishStructureError 매핑.
+    if (response.status === 502) {
+        throw new ServiceError(WishMessages.AI_UNAVAILABLE);
+    }
     if (response.status === 503) {
         throw new ServiceError(await unavailableMessage(response));
     }
