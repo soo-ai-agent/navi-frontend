@@ -3,8 +3,7 @@ import {AnswerKind} from "../enums/recommendation";
 import {multiChoiceView, toggledChoice} from "../services/multiChoiceService";
 import {numberAnswerValue, numberInputView} from "../services/numberInputService";
 import {useSliderDrag} from "./useSliderDrag";
-import type {MultiChoiceView} from "../types/numberInput";
-import type {NumberInputView} from "../types/numberInput";
+import type {MultiChoiceView, NumberInputView} from "../types/numberInput";
 import type {QuestionResponseDTO} from "../types/recommendation";
 
 export function useServerAnswer(initial: string, question: QuestionResponseDTO) {
@@ -26,7 +25,7 @@ export function useServerAnswer(initial: string, question: QuestionResponseDTO) 
 
     const valid: boolean = isMultiChoice ? multiChoice.valid : numberInput.valid;
     return {
-        text, setText, setNumberText, toggleChoice, valid, isNumber, isMultiChoice, numberInput, multiChoice,
+        text, setNumberText, toggleChoice, valid, isNumber, isMultiChoice, numberInput, multiChoice,
         drag: {dragging, beginDrag},
     };
 }

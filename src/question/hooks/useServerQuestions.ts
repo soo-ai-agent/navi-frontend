@@ -3,7 +3,13 @@ import {useNavigate} from "react-router-dom";
 import {RoutePath} from "../../common/enums/routePath";
 import {ServerAnswerValue, NextStepStatus, RequestStatus} from "../enums/recommendation";
 import type {AnswerEntry, NextStepResponseDTO, QuestionRequestState, RecommendationSession} from "../types/recommendation";
-import {appendRecommendationAnswer, getNextRecommendation, readRecommendation, recommendationError, saveRecommendation} from "../services/recommendationService";
+import {
+    appendRecommendationAnswer,
+    getNextRecommendation,
+    readRecommendation,
+    recommendationError,
+    saveRecommendation,
+} from "../services/recommendationService";
 
 export function useServerQuestions() {
     const navigate = useNavigate();
@@ -15,22 +21,18 @@ export function useServerQuestions() {
         return {status: RequestStatus.LOADING};
     });
     const [initialAnswer, setInitialAnswer] = useState<string>("");
+    // 답변 목록은 화면에 그리지 않고 요청에만 쓰므로 상태가 아니라 ref 에 둔다.
     const entries = useRef<readonly AnswerEntry[]>([]);
+    // 뒤로 가기·재시도·화면 이탈로 요청이 겹치면 마지막 번호의 응답만 화면에 반영한다.
     const sequence = useRef<number>(0);
-    const mounted = useRef<boolean>(false);
-    const busy = useRef<boolean>(false);
 
     const load = useCallback(async (nextEntries: readonly AnswerEntry[]): Promise<void> => {
         const requestId: number = ++sequence.current;
-        // 뒤로 가기나 재시도로 요청이 겹치면 마지막 요청의 응답만 화면에 반영한다.
-        const isLatestRequest = (): boolean => mounted.current && sequence.current === requestId;
-
         entries.current = nextEntries;
-        busy.current = true;
         saveRecommendation({entries: nextEntries, response: null});
         try {
             const response: NextStepResponseDTO = await getNextRecommendation(nextEntries);
-            if (!isLatestRequest()) {
+            if (sequence.current !== requestId) {
                 return;
             }
             saveRecommendation({entries: nextEntries, response});
@@ -38,21 +40,17 @@ export function useServerQuestions() {
             if (response.status === NextStepStatus.DONE) {
                 navigate(RoutePath.ANSWER_SUMMARY, {replace: true});
             }
-        } catch (error: unknown) {
-            if (!isLatestRequest()) {
+        } catch (error: unknown) { // 네트워크 실패 등 임의의 예외가 온다.
+            if (sequence.current !== requestId) {
                 return;
             }
             setState({status: RequestStatus.ERROR, message: recommendationError(error)});
-        } finally {
-            if (sequence.current === requestId) {
-                busy.current = false;
-            }
         }
     }, [navigate]);
 
     useEffect(() => {
-        mounted.current = true;
         let active: boolean = true;
+        const requestSequence = sequence;
         const session: RecommendationSession = readRecommendation();
         entries.current = session.entries;
         if (session.response === null) {
@@ -67,15 +65,11 @@ export function useServerQuestions() {
         }
         return () => {
             active = false;
-            mounted.current = false;
-            busy.current = false;
+            ++requestSequence.current; // 화면을 떠난 뒤 도착한 응답은 버린다.
         };
     }, [load, navigate]);
 
     const answer = useCallback((value: string): void => {
-        if (busy.current) {
-            return;
-        }
         if (state.status !== RequestStatus.READY || state.response.status !== NextStepStatus.QUESTION) {
             return;
         }
@@ -99,12 +93,12 @@ export function useServerQuestions() {
     }, [load, navigate]);
 
     const retry = useCallback((): void => {
-        if (busy.current) {
+        if (state.status === RequestStatus.LOADING) {
             return;
         }
         setState({status: RequestStatus.LOADING});
         void load(entries.current);
-    }, [load]);
+    }, [load, state]);
 
     const skip = useCallback((): void => answer(ServerAnswerValue.SKIPPED), [answer]);
 
