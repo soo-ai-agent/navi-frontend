@@ -24,14 +24,9 @@ export enum ComparisonViewStatus {
     NO_OPTION = "NO_OPTION",
 }
 export enum ComparisonMessages {
-    TITLE = "예상 만기금액 확인",
     MONTHLY = "월 납입액",
-    MONTHLY_INPUT = "월 납입액 (원)",
     MONTHLY_NOT_ANSWERED = "월 납입액을 답하지 않아 예상금액을 계산하지 않았어요.",
     MONTHS = "가입 기간",
-    SUBMIT = "예상금액 확인",
-    DEFAULT_TERM = "기간을 선택하지 않으면 12개월 기준으로 보여드려요.",
-    ASSUMPTION = "매월 같은 금액을 납입하는 세전 예상금액이에요. 실제 납입일과 은행 계산 방식에 따라 달라질 수 있어요.",
     LOADING = "가입 조건과 예상금액을 확인하고 있어요.",
     ERROR = "개인별 비교 정보를 불러오지 못했어요. 상품 정보는 계속 확인할 수 있어요.",
     RETRY = "비교정보 다시 확인",
@@ -44,12 +39,9 @@ export enum ComparisonMessages {
     CONDITIONAL_RATE = "답변 기준 금리",
     CONFIRMED_RATE = "내 확인 금리",
     REJECTED_HELP = "입력한 조건으로는 가입할 수 없어 예상금액을 표시하지 않아요.",
-    MATURITY = "예상 만기금액 · 세전",
     MATURITY_AT_MAX = "최대 조건 충족 시",
     MATURITY_MINE = "내 기준",
     PRINCIPAL = "원금",
-    INTEREST = "예상 이자 · 세전",
-    AMOUNT_REQUIRED = "월 납입액을 입력하면 예상 만기금액을 확인할 수 있어요.",
     MY_RATE_LABEL = "내가 받을 금리",
     GOAL_REACHED = "내 기준으로",
     GOAL_REACHED_AT_MAX_RATE = "우대조건을 모두 채우면",
@@ -59,5 +51,4 @@ export enum ComparisonMessages {
     SWIPE_HELP = "좌우로 밀어 은행별 상품을 확인해 보세요.",
     OPTION = "적립 · 이자 계산 방식",
     OPTION_RULE = "같은 기간에서는 확인 금리가 높은 옵션을 먼저 보여드려요. 금리가 같으면 정액·단리 순이에요.",
-    COMPARISON_UNAVAILABLE = "비교 옵션을 확인할 수 없어요. 비교정보를 다시 확인해 주세요.",
 }

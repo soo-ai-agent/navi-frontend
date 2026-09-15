@@ -1,9 +1,7 @@
-import type {ChangeEvent, FormEvent} from "react";
 import type {CatalogRateOptionResponseDTO} from "../../catalog/types/catalog";
 import {isRateOption} from "../../catalog/types/catalog";
 import {EligibilityStatus, EstimateStatus, GoalReachStatus} from "../enums/comparison";
 import type {RequestStatus} from "../../question/enums/recommendation";
-import type {NumberInputView} from "../../question/types/numberInput";
 import {isArrayOf, isDecimalText, isJsonObject, isMemberOf, isText} from "../../common/lib/jsonCheck";
 
 export type MaturityEstimateResponseDTO = {
@@ -34,27 +32,14 @@ export type ComparisonState =
     | {readonly status: RequestStatus.READY; readonly products: readonly ProductComparisonResponseDTO[]};
 export type ComparisonPlan = {readonly monthly: string; readonly months: string};
 export type ComparisonOptionChoice = {readonly value: string; readonly label: string};
-export type ComparisonDraft = {readonly source: string; readonly plan: ComparisonPlan};
-export type ComparisonFormView = {
-    readonly monthly: string;
-    readonly months: string;
-    readonly terms: readonly string[];
-    readonly monthlyInput: NumberInputView;
-    readonly dragging: boolean;
-    readonly onDragStart: (pointerY: number) => void;
-    readonly onMonthlyChange: (value: string) => void;
-    readonly onMonthsChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-    readonly onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-};
 
-// 금액 검사는 이 도메인에서만 반복되어 공용 헬퍼 대신 지역 함수로 유지한다.
+// 아래 검사 함수의 입력은 response.json() 결과라 검증 전까지 구조를 보장할 수 없어 unknown 으로 받는다.
 function isAmount(field: unknown): field is number {
     return typeof field === "number" && Number.isSafeInteger(field) && field >= 0;
 }
 function isRateText(field: unknown): field is string {
     return isDecimalText(field) && Number(field) >= 0 && Number.isFinite(Number(field));
 }
-// HTTP JSON은 검증 전까지 구조가 보장되지 않아 검사 함수의 입력만 unknown으로 받는다.
 function isEstimate(value: unknown): value is MaturityEstimateResponseDTO {
     if (!isJsonObject(value)) {
         return false;
