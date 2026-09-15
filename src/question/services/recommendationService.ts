@@ -4,7 +4,18 @@ import {monthlyLimitText} from "../../catalog/services/catalogService";
 import {browserStorage} from "../../common/lib/browserStorage";
 import {isFilledText, isJsonObject} from "../../common/lib/jsonCheck";
 import {BonusResult, NextStepStatus, RecommendationMessages} from "../enums/recommendation";
-import type {AnswerEntry, AnswerRequestDTO, AnswerSummaryView, QuestionResponseDTO, BonusResultResponseDTO, BonusView, NextStepResponseDTO, ProductView, RankedProductResponseDTO, RecommendationSession} from "../types/recommendation";
+import type {
+    AnswerEntry,
+    AnswerRequestDTO,
+    AnswerSummaryView,
+    QuestionResponseDTO,
+    BonusResultResponseDTO,
+    BonusView,
+    NextStepResponseDTO,
+    ProductView,
+    RankedProductResponseDTO,
+    RecommendationSession,
+} from "../types/recommendation";
 import type {ComparisonState} from "../../product/types/comparison";
 import {rankedComparisonSummary} from "../../product/services/comparisonViewService";
 import {hasAnswerEntries, isNextStep, isRecommendationSession} from "../types/recommendation";
@@ -41,9 +52,16 @@ const BANK_ANSWER_KEYS: ReadonlySet<string> = new Set([
     "cardBank",
     "paymentAccountBank",
 ]);
+const BONUS_RESULT_LABELS: Readonly<Record<BonusResult, string>> = {
+    [BonusResult.ELIGIBLE]: RecommendationMessages.ELIGIBLE,
+    [BonusResult.NOT_ELIGIBLE]: RecommendationMessages.NOT_ELIGIBLE,
+    [BonusResult.UNKNOWN]: RecommendationMessages.UNKNOWN,
+};
 // StrictMode의 연속 마운트가 동일한 읽기 요청을 두 번 전송하지 않도록 진행 중인 요청만 공유한다.
 const pendingRequests: Map<string, Promise<NextStepResponseDTO>> = new Map();
 
+// ---- 세션 저장소 ----
+// 새로고침해도 답이 남아야 해서 React 상태 밖(sessionStorage)에 둔다.
 export function readRecommendation(): RecommendationSession {
     const raw: string = browserStorage.read(SESSION_KEY);
     if (raw === "") {
@@ -74,17 +92,19 @@ export function saveRecommendation(session: RecommendationSession): void {
 export function resetRecommendation(): void {
     saveRecommendation(EMPTY_SESSION);
 }
-// 서버가 안내 문구를 보내면 그대로 쓰고, 본문을 읽지 못하면 기본 안내를 쓴다.
-async function unavailableMessage(response: Response): Promise<string> {
-    try {
-        const payload: unknown = await response.json();
-        if (isJsonObject(payload) && isFilledText(payload.detail)) {
-            return payload.detail;
-        }
-    } catch {
-        // 본문이 JSON 이 아니면 기본 안내를 쓴다.
+
+// ---- 다음 질문 요청 ----
+export function getNextRecommendation(entries: readonly AnswerEntry[]): Promise<NextStepResponseDTO> {
+    const answers: AnswerRequestDTO = Object.fromEntries(entries.map((entry: AnswerEntry): readonly [string, string] => [entry.key, entry.value]));
+    const key: string = JSON.stringify(answers);
+    const existing: Promise<NextStepResponseDTO> | undefined = pendingRequests.get(key); // 같은 입력의 요청이 없을 수 있다.
+    if (existing !== undefined) {
+        return existing;
     }
-    return RecommendationMessages.CONDITIONS_UNAVAILABLE;
+    const request: Promise<NextStepResponseDTO> = requestNext(answers);
+    pendingRequests.set(key, request);
+    void request.then(() => pendingRequests.delete(key), () => pendingRequests.delete(key));
+    return request;
 }
 async function requestNext(answers: AnswerRequestDTO): Promise<NextStepResponseDTO> {
     let response: Response;
@@ -113,17 +133,18 @@ async function requestNext(answers: AnswerRequestDTO): Promise<NextStepResponseD
     }
     throw new ServiceError(RecommendationMessages.RESPONSE_ERROR);
 }
-export function getNextRecommendation(entries: readonly AnswerEntry[]): Promise<NextStepResponseDTO> {
-    const answers: AnswerRequestDTO = Object.fromEntries(entries.map((entry: AnswerEntry): readonly [string, string] => [entry.key, entry.value]));
-    const key: string = JSON.stringify(answers);
-    const existing: Promise<NextStepResponseDTO> | undefined = pendingRequests.get(key); // 같은 입력의 요청이 없을 수 있다.
-    if (existing !== undefined) {
-        return existing;
+// 서버가 안내 문구를 보내면 그대로 쓰고, 본문을 읽지 못하면 기본 안내를 쓴다.
+async function unavailableMessage(response: Response): Promise<string> {
+    try {
+        // 오류 본문은 DTO 계약이 없어 detail 문자열만 골라 쓴다.
+        const payload: unknown = await response.json();
+        if (isJsonObject(payload) && isFilledText(payload.detail)) {
+            return payload.detail;
+        }
+    } catch {
+        // 본문이 JSON 이 아니면 기본 안내를 쓴다.
     }
-    const request: Promise<NextStepResponseDTO> = requestNext(answers);
-    pendingRequests.set(key, request);
-    void request.then(() => pendingRequests.delete(key), () => pendingRequests.delete(key));
-    return request;
+    return RecommendationMessages.CONDITIONS_UNAVAILABLE;
 }
 // catch는 네트워크 실패 등 임의의 예외를 받을 수 있으므로 여기에서 사용자 메시지로 좁힌다.
 export function recommendationError(error: unknown): string {
@@ -132,34 +153,22 @@ export function recommendationError(error: unknown): string {
     }
     return RecommendationMessages.SERVER_ERROR;
 }
+
+// ---- 답변 목록 ----
+// 같은 질문에 다시 답하면 그 뒤의 답은 버린다 — 뒤 질문은 앞 답에 따라 달라진다.
 export function appendRecommendationAnswer(
     entries: readonly AnswerEntry[], question: QuestionResponseDTO, value: string,
 ): readonly AnswerEntry[] {
     const index: number = entries.findIndex((entry: AnswerEntry) => entry.key === question.key);
     const previous: readonly AnswerEntry[] = index < 0 ? entries : entries.slice(0, index);
-    return [...previous, {
-        key: question.key, value,
-        questionTitle: question.title,
-        answerLabel: answerLabel(question, value),
-    }];
-}
-
-// 답한 값의 사람이 읽는 이름. 다중 선택은 각 값을 표시 이름으로 바꾸고, 직접 입력은 그대로 보여준다.
-function answerLabel(question: QuestionResponseDTO, value: string): string {
+    // 다중 선택은 각 값을 표시 이름으로 바꾸고, 직접 입력은 그대로 보여준다.
     const labels: ReadonlyMap<string, string> = new Map(question.options);
-    return value.split(",").map((answer: string): string => {
+    const answerLabel: string = value.split(",").map((answer: string): string => {
         const label: string = labels.get(answer) ?? answer;
         return readableBankName(question.key, label);
     }).join(", ");
+    return [...previous, {key: question.key, value, questionTitle: question.title, answerLabel}];
 }
-
-function readableBankName(key: string, label: string): string {
-    if (!BANK_ANSWER_KEYS.has(key) || !/^\d{7}$/u.test(label)) {
-        return label;
-    }
-    return BANK_NAMES[label] ?? RecommendationMessages.BANK_NAME_UNAVAILABLE;
-}
-
 export function answerSummaries(entries: readonly AnswerEntry[]): readonly AnswerSummaryView[] {
     const summaries: AnswerSummaryView[] = [];
     for (const entry of entries) {
@@ -174,6 +183,15 @@ export function answerSummaries(entries: readonly AnswerEntry[]): readonly Answe
     }
     return summaries;
 }
+// 은행 질문의 답은 7자리 기관 코드로 저장되므로 보여 줄 때 은행 이름으로 바꾼다.
+function readableBankName(key: string, label: string): string {
+    if (!BANK_ANSWER_KEYS.has(key) || !/^\d{7}$/u.test(label)) {
+        return label;
+    }
+    return BANK_NAMES[label] ?? RecommendationMessages.BANK_NAME_UNAVAILABLE;
+}
+
+// ---- 확정된 추천 결과 ----
 export function getResultProducts(comparison: ComparisonState): readonly ProductView[] {
     const session: RecommendationSession = readRecommendation();
     if (session.response?.status !== NextStepStatus.DONE) {
@@ -182,13 +200,8 @@ export function getResultProducts(comparison: ComparisonState): readonly Product
     return session.response.result.rows.map((row: RankedProductResponseDTO) => productView(row, comparison));
 }
 function productView(row: RankedProductResponseDTO, comparison: ComparisonState): ProductView {
-    const labels: Readonly<Record<BonusResult, string>> = {
-        [BonusResult.ELIGIBLE]: RecommendationMessages.ELIGIBLE,
-        [BonusResult.NOT_ELIGIBLE]: RecommendationMessages.NOT_ELIGIBLE,
-        [BonusResult.UNKNOWN]: RecommendationMessages.UNKNOWN,
-    };
     const bonuses: readonly BonusView[] = row.bonus_results.map((bonus: BonusResultResponseDTO, index: number) => ({
-        key: `${index}:${bonus.label}`, label: bonus.label, status: labels[bonus.result],
+        key: `${index}:${bonus.label}`, label: bonus.label, status: BONUS_RESULT_LABELS[bonus.result],
         point: `${bonus.percentage_point}%p`, result: bonus.result,
     }));
     return {
