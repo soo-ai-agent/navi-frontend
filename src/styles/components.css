@@ -1,0 +1,156 @@
+.top {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 52px;
+}
+/* 로고는 양옆 버튼 개수와 상관없이 늘 화면 가운데 온다 — 흐름에서 빼고 가운데 고정한다. */
+.top .brand-home {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.icon {
+    background: none;
+    border: 0;
+    padding: 8px 12px 8px 0;
+    color: var(--g900);
+    font-size: 26px;
+    line-height: 1;
+}
+.text-btn {
+    background: none;
+    border: 0;
+    color: var(--g500);
+    font-size: 15px;
+    padding: 8px 0;
+}
+/* ── 버튼·칩 ──────────────────────────────────────── */
+.cta {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    background: var(--blue);
+    color: var(--g900);
+    font-size: 17px;
+    font-weight: 700;
+    padding: 17px;
+}
+.cta:active {
+    background: var(--blue-press);
+}
+.cta.gray {
+    background: var(--g100);
+    color: var(--g900);
+}
+.link {
+    display: block;
+    width: 100%;
+    background: none;
+    border: 0;
+    color: var(--g500);
+    font-size: 15px;
+    padding: 14px;
+}
+.chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.chip {
+    border: 0;
+    border-radius: 20px;
+    padding: 8px 14px;
+    background: var(--g100);
+    color: var(--g700);
+    font-size: 14px;
+    font-weight: 500;
+}
+.chip.on {
+    background: #FFE98A;
+    color: var(--g900);
+    font-weight: 600;
+}
+.chip:active {
+    background: var(--g200);
+}
+
+/* ── 카드·행·기타 공용 ─────────────────────────────── */
+.card {
+    background: var(--g100);
+    border-radius: 16px;
+    padding: 8px 20px;
+    margin-top: 24px;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+}
+.row .l {
+    min-width: 0;
+}
+.row .n {
+    font-weight: 600;
+    font-size: 16px;
+}
+.row .s {
+    color: var(--g500);
+    font-size: 13px;
+    margin-top: 2px;
+}
+.row .r {
+    font-weight: 700;
+    font-size: 17px;
+    white-space: nowrap;
+}
+.big {
+    font-size: clamp(26px, 8vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 14px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.big .pre {
+    font-size: 0.55em;
+    font-weight: 600;
+    color: var(--g500);
+    margin-right: 2px;
+}
+.notice {
+    background: var(--g100);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--g700);
+}
+
+/* ── 푸터 ─────────────────────────────────────────── */
+.foot {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--g200);
+    font-size: 12px;
+    color: var(--g500);
+    line-height: 1.7;
+}
+.foot .src b {
+    color: var(--g700);
+    font-weight: 600;
+}
+.foot select {
+    font: inherit;
+    font-size: 12px;
+    color: var(--g500);
+    border: 0;
+    background: none;
+    padding: 0;
+}
+

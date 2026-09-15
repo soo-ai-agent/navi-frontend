@@ -1,0 +1,25 @@
+main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 8px 24px 24px;
+    box-sizing: border-box;
+}
+main > section {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 32px);
+}
+main > section > * {
+    flex: none;
+}
+main > section > .sticky {
+    margin-top: auto;
+}
+.sticky {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 16px 0 calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(rgba(255, 253, 246, 0), #FFFDF6 30%);
+}
+

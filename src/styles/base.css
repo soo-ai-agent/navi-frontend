@@ -1,0 +1,82 @@
+* {
+    box-sizing: border-box;
+}
+html {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--g900);
+    background: #FFFDF6;
+    line-height: 1.5;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+}
+body {
+    margin: 0;
+}
+h1,
+h2 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+h1 {
+    font-size: 26px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 24px;
+    line-height: 1.35;
+}
+p {
+    margin: 0;
+}
+.sub {
+    color: var(--g700);
+    font-size: 15px;
+    margin-top: 8px;
+}
+.cap {
+    color: var(--g500);
+    font-size: 13px;
+    margin-top: 8px;
+}
+.cap a {
+    color: var(--g500);
+}
+.cap.sec {
+    margin-top: 24px;
+    margin-bottom: 6px;
+}
+.center-text {
+    text-align: center;
+}
+.center {
+    text-align: center;
+    padding-top: 96px;
+}
+[hidden] {
+    display: none !important;
+}
+:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+/* ── 색 유틸 ──────────────────────────────────────── */
+.ok {
+    color: var(--green);
+}
+.no {
+    color: var(--red);
+}
+.mb {
+    color: var(--amber);
+}
+.up {
+    color: var(--ink);
+}
+

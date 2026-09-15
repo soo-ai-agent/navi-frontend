@@ -1,0 +1,61 @@
+/* 브랜드(나비) 단일 정의 — 로고 버튼, 나비 마크, 날갯짓 애니메이션 */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-family: "Jua", "Pretendard Variable", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: #F2A900;
+    letter-spacing: 0;
+    line-height: 1;
+}
+.brand-home {
+    padding: 0;
+    border: 0;
+    background: none;
+}
+.brand-mark {
+    width: 26px;
+    height: 26px;
+    overflow: visible;
+}
+
+.bfly {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.bfly.hop {
+    animation: hop 0.6s ease-out;
+}
+
+.brand-wing-left,
+.brand-wing-right {
+    transform-origin: 32px 33px;
+}
+.bfly .brand-wing-left,
+.bfly .brand-wing-right {
+    animation: flap 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes flap {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0.5);
+    }
+}
+@keyframes hop {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    35% {
+        transform: translateY(-16px) scale(1.12);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}

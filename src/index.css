@@ -1,0 +1,8 @@
+/* 전역 스타일 묶음. 화면 전용 스타일은 각 화면 폴더의 css (start/question/result/product) 에 있다.
+   @import 순서 = 캐스케이드 순서: 토큰 → 태그 기본값 → 레이아웃 → 위젯 → 움직임 */
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/layout.css";
+@import "./styles/components.css";
+@import "./common/brand.css";
+@import "./styles/animations.css";
