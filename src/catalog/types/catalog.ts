@@ -35,7 +35,7 @@ export type CatalogProductResponseDTO = {
     readonly other_eligibility_conditions: readonly OtherConditionResponseDTO[];
     readonly other_bonus_conditions: readonly OtherConditionResponseDTO[];
 };
-export type ProductCatalogResponseDTO = {readonly products: readonly CatalogProductResponseDTO[]};
+type ProductCatalogResponseDTO = {readonly products: readonly CatalogProductResponseDTO[]};
 export type CatalogState =
     | {readonly status: RequestStatus.LOADING}
     | {readonly status: RequestStatus.ERROR; readonly message: string}
@@ -59,7 +59,6 @@ export type CatalogRateView = {
     readonly base: string;
     readonly maximum: string;
 };
-export type CatalogInfoView = {readonly label: string; readonly value: string};
 
 export type CatalogCategoryView = {readonly key: string; readonly title: string; readonly cards: readonly CatalogCardView[]};
 
