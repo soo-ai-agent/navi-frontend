@@ -21,9 +21,7 @@ type Props = {
     readonly pager: ReturnType<typeof useProductDetailPager>;
 };
 
-export default function ProductDetailContent({product, children, pager}: Props) {
-    const {tabs, activeTab, selectTab, pagerRef, handlePagerScroll} = pager;
-
+function bonusPane(product: ProductDetailView): JSX.Element {
     const matchedBonusViews: JSX.Element[] = [];
     for (const bonus of product.matchedBonuses) {
         matchedBonusViews.push(<ServerBonusRow key={bonus.key} bonus={bonus} />);
@@ -32,73 +30,88 @@ export default function ProductDetailContent({product, children, pager}: Props) 
     for (const bonus of product.unmatchedBonuses) {
         unmatchedBonusViews.push(<ServerBonusRow key={bonus.key} bonus={bonus} />);
     }
+    return (
+        <>
+            {matchedBonusViews.length > 0 && (
+                <section aria-label={RecommendationMessages.MATCHED_BONUS_TITLE}>
+                    <h2 className="product-server-title">{RecommendationMessages.MATCHED_BONUS_TITLE}</h2>
+                    <ul className="card product-server-bonuses">{matchedBonusViews}</ul>
+                </section>
+            )}
+            {unmatchedBonusViews.length > 0 && (
+                <section aria-label={RecommendationMessages.UNMATCHED_BONUS_TITLE}>
+                    <h2 className="product-server-title">{RecommendationMessages.UNMATCHED_BONUS_TITLE}</h2>
+                    <ul className="card product-server-bonuses">{unmatchedBonusViews}</ul>
+                </section>
+            )}
+            <ServerConditionChecklist title={RecommendationMessages.BONUS_CHECKLIST_TITLE} conditions={product.other_bonus_conditions} />
+        </>
+    );
+}
 
-    const paneContents: Readonly<Record<ProductDetailTab, JSX.Element>> = {
-        [ProductDetailTab.MEMBER]: (
-            <>
-                <ProductEligibilityNotice summary={product.comparison} />
+function tabPane(product: ProductDetailView, tab: ProductDetailTab): JSX.Element {
+    switch (tab) {
+        case ProductDetailTab.MEMBER:
+            return (
+                <>
+                    <ProductEligibilityNotice summary={product.comparison} />
+                    <dl className="card product-info-rows">
+                        <InfoRow label={CatalogMessages.MEMBER} value={product.member} />
+                        <InfoRow label={CatalogMessages.JOIN_WAYS} value={product.joinWays.join(", ")} />
+                        <InfoRow label={CatalogMessages.CONTACT} value={product.callCenter} />
+                    </dl>
+                </>
+            );
+        case ProductDetailTab.RESTRICTION:
+            return (
                 <dl className="card product-info-rows">
-                    <InfoRow label={CatalogMessages.MEMBER} value={product.member} />
-                    <InfoRow label={CatalogMessages.JOIN_WAYS} value={product.joinWays.join(", ")} />
-                    <InfoRow label={CatalogMessages.CONTACT} value={product.callCenter} />
+                    <InfoRow label={CatalogMessages.RESTRICTION} value={product.restriction} />
+                    <InfoRow label={CatalogMessages.LIMIT} value={product.limit} />
                 </dl>
-            </>
-        ),
-        [ProductDetailTab.RESTRICTION]: (
-            <dl className="card product-info-rows">
-                <InfoRow label={CatalogMessages.RESTRICTION} value={product.restriction} />
-                <InfoRow label={CatalogMessages.LIMIT} value={product.limit} />
-            </dl>
-        ),
-        [ProductDetailTab.ELIGIBILITY_CHECKLIST]: (
-            <ServerConditionChecklist title={RecommendationMessages.ELIGIBILITY_CHECKLIST_TITLE}
-                conditions={product.other_eligibility_conditions} />
-        ),
-        [ProductDetailTab.CHECKLIST]: (
-            <>
-                <ServerConditionChecklist title={RecommendationMessages.OTHER_CHECKLIST_TITLE} conditions={product.other_conditions} />
-                {product.checklistNotice !== "" && <p className="notice">{product.checklistNotice}</p>}
-            </>
-        ),
-        [ProductDetailTab.BONUSES]: (
-            <>
-                {matchedBonusViews.length > 0 && (
-                    <section aria-label={RecommendationMessages.MATCHED_BONUS_TITLE}>
-                        <h2 className="product-server-title">{RecommendationMessages.MATCHED_BONUS_TITLE}</h2>
-                        <ul className="card product-server-bonuses">{matchedBonusViews}</ul>
-                    </section>
-                )}
-                {unmatchedBonusViews.length > 0 && (
-                    <section aria-label={RecommendationMessages.UNMATCHED_BONUS_TITLE}>
-                        <h2 className="product-server-title">{RecommendationMessages.UNMATCHED_BONUS_TITLE}</h2>
-                        <ul className="card product-server-bonuses">{unmatchedBonusViews}</ul>
-                    </section>
-                )}
-                <ServerConditionChecklist title={RecommendationMessages.BONUS_CHECKLIST_TITLE} conditions={product.other_bonus_conditions} />
-            </>
-        ),
-        [ProductDetailTab.RATES]: (
-            <>
-                <p className="cap sec">
-                    {CatalogMessages.PERIOD_RATES} <span className="m">{CatalogMessages.DISCLOSURE_PRETAX}</span>
-                </p>
-                <RateTable rows={product.rateRows} />
-            </>
-        ),
-        [ProductDetailTab.NOTES]: (
-            <dl className="card product-info-rows">
-                <InfoRow label={CatalogMessages.MATURITY} value={product.afterMaturityRate} />
-                <InfoRow label={CatalogMessages.NOTE} value={product.note} />
-            </dl>
-        ),
-        [ProductDetailTab.DISCLOSURE]: (
-            <dl className="card product-info-rows">
-                <InfoRow label={CatalogMessages.DISCLOSURE_MONTH} value={product.disclosureMonth} />
-                <InfoRow label={CatalogMessages.DISCLOSURE_DATE} value={product.disclosureDate} />
-                <InfoRow label={RecommendationMessages.SOURCE_TITLE} value={product.source} />
-            </dl>
-        ),
-    };
+            );
+        case ProductDetailTab.ELIGIBILITY_CHECKLIST:
+            return (
+                <ServerConditionChecklist title={RecommendationMessages.ELIGIBILITY_CHECKLIST_TITLE}
+                    conditions={product.other_eligibility_conditions} />
+            );
+        case ProductDetailTab.CHECKLIST:
+            return (
+                <>
+                    <ServerConditionChecklist title={RecommendationMessages.OTHER_CHECKLIST_TITLE} conditions={product.other_conditions} />
+                    {product.checklistNotice !== "" && <p className="notice">{product.checklistNotice}</p>}
+                </>
+            );
+        case ProductDetailTab.BONUSES:
+            return bonusPane(product);
+        case ProductDetailTab.RATES:
+            return (
+                <>
+                    <p className="cap sec">
+                        {CatalogMessages.PERIOD_RATES} <span className="m">{CatalogMessages.DISCLOSURE_PRETAX}</span>
+                    </p>
+                    <RateTable rows={product.rateRows} />
+                </>
+            );
+        case ProductDetailTab.NOTES:
+            return (
+                <dl className="card product-info-rows">
+                    <InfoRow label={CatalogMessages.MATURITY} value={product.afterMaturityRate} />
+                    <InfoRow label={CatalogMessages.NOTE} value={product.note} />
+                </dl>
+            );
+        case ProductDetailTab.DISCLOSURE:
+            return (
+                <dl className="card product-info-rows">
+                    <InfoRow label={CatalogMessages.DISCLOSURE_MONTH} value={product.disclosureMonth} />
+                    <InfoRow label={CatalogMessages.DISCLOSURE_DATE} value={product.disclosureDate} />
+                    <InfoRow label={RecommendationMessages.SOURCE_TITLE} value={product.source} />
+                </dl>
+            );
+    }
+}
+
+export default function ProductDetailContent({product, children, pager}: Props) {
+    const {tabs, activeTab, selectTab, pagerRef, handlePagerScroll} = pager;
 
     const tabViews: JSX.Element[] = [];
     const paneViews: JSX.Element[] = [];
@@ -113,7 +126,7 @@ export default function ProductDetailContent({product, children, pager}: Props) 
         );
         paneViews.push(
             <ProductDetailPane key={view.tab} index={index} activeTab={activeTab} label={view.tab}>
-                {paneContents[view.tab]}
+                {tabPane(product, view.tab)}
             </ProductDetailPane>
         );
         dotViews.push(<i key={view.tab} className={selected ? "on" : ""} />);
