@@ -21,13 +21,15 @@ export function useServerProductDetail() {
     const {name = ""} = useParams();
     const [params, setParams] = useSearchParams();
     const session: RecommendationSession = readRecommendation();
-    const enteredPlan: ComparisonPlan = comparisonPlan(params, session.entries);
 
+    // 주소에 product_id 가 있으면 전체 상품 목록에서, 없으면 추천 결과에서 들어온 화면이다.
     const catalogProductId: string = params.get("product_id") ?? "";
     const fromRecommendation: boolean = catalogProductId === "";
-    // 전체 상품 URL에는 저장된 추천이 없으므로 조회 결과가 undefined일 수 있다.
+    const selectedOption: string = params.get("option") ?? "";
+    // 추천 결과 주소여도 저장된 추천이 지워졌거나 오래됐으면 찾지 못해 undefined 다.
     const recommended: RankedProductResponseDTO | undefined = fromRecommendation ? getRankedProduct(name) : undefined;
 
+    const enteredPlan: ComparisonPlan = comparisonPlan(params, session.entries);
     const plan: ComparisonPlan = recommended === undefined
         ? enteredPlan
         : {...enteredPlan, months: `${recommended.saving_term_months}`};
@@ -35,14 +37,15 @@ export function useServerProductDetail() {
     const requestedProductId: string = recommended === undefined ? catalogProductId : recommended.product_id;
     const {state, retry} = useCatalogProduct(requestedProductId);
     const {state: comparison, load, cancel} = useProductComparisons(comparisonAnswers(session.entries, plan));
-    // 상품 응답이 준비되지 않았거나 서버에 상품이 없으면 공시 데이터가 undefined다.
-    const disclosure: CatalogProductResponseDTO | undefined = state.status === RequestStatus.READY
-        ? state.product
-        : undefined;
-    const source: readonly CatalogProductResponseDTO[] = disclosure === undefined ? [] : [disclosure];
-    const selectedOption: string = params.get("option") ?? "";
+    useEffect(() => {
+        void load();
+        return cancel;
+    }, [load, cancel]);
 
-    // 잘못된 URL은 추천과 공시를 모두 찾지 못하므로 상세 상품이 undefined일 수 있다.
+    const source: readonly CatalogProductResponseDTO[] = state.status === RequestStatus.READY && state.product !== undefined
+        ? [state.product]
+        : [];
+    // 잘못된 주소는 추천과 공시를 모두 찾지 못해 상세가 undefined 다 — 화면은 이때 "없는 상품" 안내를 그린다.
     const product: ProductDetailView | undefined = getProductDetail(
         name,
         catalogProductId,
@@ -51,37 +54,19 @@ export function useServerProductDetail() {
         plan,
         selectedOption,
     );
-    const detailProductId: string = product === undefined ? "" : product.product_id;
+    const pager = useProductDetailPager(product === undefined ? [] : product.tabs);
 
+    const detailProductId: string = product === undefined ? "" : product.product_id;
     const options: readonly ComparisonOptionChoice[] = recommended === undefined
         ? productComparisonChoices(comparison, detailProductId, plan.months)
         : [];
     const firstOptionValue: string = options.length === 0 ? "" : options[0].value;
     const optionValue: string = selectedOption === "" ? firstOptionValue : selectedOption;
-
     const selectOption = useCallback((event: ChangeEvent<HTMLSelectElement>): void => {
         const next: URLSearchParams = new URLSearchParams(params);
         next.set("option", event.target.value);
         setParams(next, {replace: true});
     }, [params, setParams]);
-
-    useEffect(() => {
-        void load();
-        return cancel;
-    }, [load, cancel]);
-
-    const pager = useProductDetailPager(product?.tabs ?? []);
-
-    const backPath: string = fromRecommendation
-        ? RoutePath.RESULT
-        : `${RoutePath.PRODUCTS}?${new URLSearchParams({monthly: plan.monthly, months: plan.months})}`;
-    const backLabel: string = fromRecommendation ? RecommendationMessages.RESULT_BACK : CatalogMessages.LIST_BACK;
-    const back = useCallback((): void => {
-        navigate(backPath);
-    }, [backPath, navigate]);
-    const refresh = useCallback((): void => {
-        navigate(RoutePath.QUESTIONS);
-    }, [navigate]);
 
     const terms: readonly string[] = recommended === undefined ? comparisonTerms(source, plan.months) : [plan.months];
     const selectMonths = useCallback((event: ChangeEvent<HTMLSelectElement>): void => {
@@ -96,6 +81,17 @@ export function useServerProductDetail() {
         terms,
         selectMonths,
     };
+
+    const backPath: string = fromRecommendation
+        ? RoutePath.RESULT
+        : `${RoutePath.PRODUCTS}?${new URLSearchParams({monthly: plan.monthly, months: plan.months})}`;
+    const backLabel: string = fromRecommendation ? RecommendationMessages.RESULT_BACK : CatalogMessages.LIST_BACK;
+    const back = useCallback((): void => {
+        navigate(backPath);
+    }, [backPath, navigate]);
+    const refresh = useCallback((): void => {
+        navigate(RoutePath.QUESTIONS);
+    }, [navigate]);
 
     return {
         product, state,
