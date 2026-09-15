@@ -1,11 +1,3 @@
-.comparison-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(100px, .6fr); gap: 12px; }
-.comparison-form label { display: grid; gap: 6px; min-width: 0; font-size: 13px; color: var(--g700); }
-.comparison-form input, .comparison-form select { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px; border: 1px solid var(--g200); border-radius: 8px; font: inherit; color: var(--g900); background: #fff; }
-.comparison-form .cta, .comparison-form-note { grid-column: 1 / -1; margin: 0; }
-.comparison-form-monthly { grid-column: 1 / -1; min-width: 0; }
-.comparison-form-monthly > .cap { margin: 0 0 8px; }
-.comparison-form .answer-number-value { font-size: 20px; }
-.comparison-form .cta:disabled { opacity: .45; cursor: not-allowed; }
 .comparison-summary { display: block; margin-top: 10px; overflow-wrap: anywhere; }
 .comparison-eligibility { display: inline-block; flex: none; border-radius: 99px; padding: 3px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--g100); color: var(--g700); }
 .comparison-eligibility[data-status="ELIGIBLE"] { background: #eaf5ed; color: #246a3c; }
