@@ -5,16 +5,16 @@ import {buildStageTracks, type StageTracks} from "../services/stageTrackService"
 const TRACK_PIXELS_PER_SECOND: number = 40;
 const PICK_ROTATE_MS: number = 1500;
 
+// 트랙 내용은 이음새 없는 순환을 위해 2벌 복제되어 있어 한 벌 너비로 속도를 맞춘다.
 function applyTrackSpeed(track: HTMLDivElement): void {
-    const oneCopyWidth: number = track.scrollWidth / 2; // 트랙 내용은 이음새 없는 순환을 위해 2벌 복제되어 있다
+    const oneCopyWidth: number = track.scrollWidth / 2;
     track.style.animationDuration = `${oneCopyWidth / TRACK_PIXELS_PER_SECOND}s`;
 }
 
 export type StageState = StageTracks & {
     readonly pickBank: string;
     readonly hopKey: number; // 값이 바뀔 때마다 나비 hop 애니메이션 재생
-    // 브라우저가 DOM을 연결하기 전에는 ref가 비어 있다.
-    readonly setTrackSpeed: (element: HTMLDivElement | null) => void;
+    readonly setTrackSpeed: (element: HTMLDivElement | null) => void; // ref 콜백은 DOM 해제 시 null 을 받는다
 };
 
 export function useStartStage(products: readonly CatalogProductResponseDTO[]): StageState {
@@ -22,6 +22,7 @@ export function useStartStage(products: readonly CatalogProductResponseDTO[]): S
     const [rotateCount, setRotateCount] = useState<number>(0);
 
     useEffect(() => {
+        // 사용자의 움직임 줄이기 설정은 브라우저만 알고 있어 matchMedia 로 직접 읽는다.
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
             return;
         }
@@ -31,6 +32,7 @@ export function useStartStage(products: readonly CatalogProductResponseDTO[]): S
 
     const setTrackSpeed = useCallback((element: HTMLDivElement | null): void => {
         if (element !== null) {
+            // scrollWidth 는 레이아웃이 끝난 뒤에야 확정되므로 다음 프레임에서 읽는다.
             requestAnimationFrame(() => applyTrackSpeed(element));
         }
     }, []);

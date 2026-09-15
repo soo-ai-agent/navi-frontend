@@ -1,7 +1,8 @@
 import {useCallback, useRef, useState, type UIEvent} from "react";
 import type {ProductDetailTabView} from "../types/productDetail";
 
-// React는 형제 패널 사이의 실제 스크롤 간격을 제공하지 않아 렌더된 DOM 위치를 읽는다.
+// 탭 이동은 CSS scroll-snap 이 맡는 가로 스크롤이라 React 상태로는 위치를 정할 수 없고,
+// 패널 간격도 렌더된 DOM 좌표(offsetLeft)에서만 알 수 있다.
 function paneStep(pager: HTMLDivElement): number {
     const [first, second] = pager.children;
     if (!(first instanceof HTMLElement) || !(second instanceof HTMLElement)) {
@@ -13,10 +14,10 @@ function paneStep(pager: HTMLDivElement): number {
 export function useProductDetailPager(available: readonly ProductDetailTabView[]) {
     const tabs: readonly ProductDetailTabView[] = available.filter((view: ProductDetailTabView) => view.hasContent);
     const [activeTab, setActiveTab] = useState<number>(0);
+    // React 가 DOM 을 연결하기 전이나 해제한 뒤에는 ref.current 가 null 이다.
     const pagerRef = useRef<HTMLDivElement | null>(null);
 
     const selectTab = useCallback((index: number): void => {
-        // React가 DOM을 연결하기 전이나 해제한 뒤에는 ref.current가 null이다.
         const pager: HTMLDivElement | null = pagerRef.current;
         if (pager === null) {
             return;

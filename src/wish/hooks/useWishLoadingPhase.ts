@@ -21,6 +21,7 @@ export function useWishLoadingPhase(loading: boolean): WishMessages {
         if (!loading) {
             return;
         }
+        // React 에는 시간 경과를 표현하는 수단이 없어 브라우저 타이머를 effect 안에서 쓰고 정리한다.
         const timer: number = window.setInterval(() => {
             setPhase((previous: number): number => Math.min(previous + 1, LOADING_PHASES.length - 1));
         }, PHASE_INTERVAL_MILLISECONDS);
