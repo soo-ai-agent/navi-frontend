@@ -7,6 +7,7 @@ import type {AnswerRequestDTO} from "../../question/types/recommendation";
 
 export function useProductComparisons(answers: AnswerRequestDTO) {
     const [state, setState] = useState<ComparisonState>({status: RequestStatus.LOADING});
+    // 늦게 도착한 이전 요청의 응답을 버리기 위한 요청 번호. 렌더와 무관해 ref 에 둔다.
     const sequence = useRef<number>(0);
     const requestBody: string = JSON.stringify(answers);
     const load = useCallback(async (): Promise<void> => {
@@ -19,7 +20,7 @@ export function useProductComparisons(answers: AnswerRequestDTO) {
             }
             setState({status: RequestStatus.READY, products: compared});
         } catch (error: unknown) {
-            // 네트워크와 JSON 파싱 예외는 서비스에서 사용자 메시지로 좁힌다.
+            // catch 는 어떤 값이든 받을 수 있어 unknown 이며, 서비스가 사용자 메시지로 좁힌다.
             if (requestId !== sequence.current) {
                 return;
             }
