@@ -14,7 +14,8 @@ export default function WishComposer({draft, disabled, onChangeDraft, onSubmit}:
         onSubmit();
     };
     const submitOnEnter = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-        if (event.key === "Enter" && !event.shiftKey) {
+        // 한글 IME 조합 중 Enter 는 글자 확정용이다 — 여기서 전송하면 확정된 글자가 비운 입력창에 다시 들어온다.
+        if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
             event.preventDefault();
             onSubmit();
         }
