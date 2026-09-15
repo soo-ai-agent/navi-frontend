@@ -1,0 +1,16 @@
+.catalog-list { margin-top: 24px; }
+.catalog-product-card { display: block; color: inherit; text-decoration: none; min-width: 0; overflow-wrap: anywhere; }
+.catalog-product-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.catalog-product-card h2 { margin: 2px 0 0; font-size: 16px; line-height: 1.35; }
+.catalog-rate { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.catalog-rate strong { font-size: 22px; }
+
+.catalog-category-tabs { display: flex; overflow-x: auto; gap: 8px; padding: 4px 0 12px; scrollbar-width: none; }
+.catalog-category { flex: none; padding: 8px 13px; border-radius: 99px; border: 1px solid var(--g200); background: #fff; color: var(--g700); font: inherit; font-size: 13px; cursor: pointer; }
+.catalog-category.on { border-color: var(--blue); color: var(--g900); background: #fff6d9; font-weight: 700; }
+.catalog-pager { display: flex; overflow-x: auto; width: 100%; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+.catalog-pager.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.catalog-panel { flex: 0 0 100%; min-width: 0; padding: 0 2px; box-sizing: border-box; scroll-snap-align: start; }
+.catalog-pager.dragging .catalog-product-card { pointer-events: none; }
+
+.catalog-panel[aria-hidden="true"] { height: 0; overflow: hidden; }
