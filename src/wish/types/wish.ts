@@ -1,6 +1,7 @@
 import type {RequestStatus} from "../../question/enums/recommendation";
+import type {WishStepStatus} from "../enums/wish";
 import {isNextStep, isRankedProduct} from "../../question/types/recommendation";
-import type {NextStepResponseDTO, RankedProductResponseDTO} from "../../question/types/recommendation";
+import type {NextStepResponseDTO, QuestionResponseDTO, RankedProductResponseDTO} from "../../question/types/recommendation";
 import {isArrayOf, isInteger, isJsonObject, isText} from "../../common/lib/jsonCheck";
 
 export type WishRequestDTO = {
@@ -9,9 +10,9 @@ export type WishRequestDTO = {
     readonly answers: Readonly<Record<string, string>>;
     readonly situation: string;
 };
-export type WishAnswerResponseDTO = {readonly code: string; readonly value: string};
-export type WishUnmappedResponseDTO = {readonly name: string; readonly text: string};
-export type WishRankedProductResponseDTO = RankedProductResponseDTO & {readonly reason: string};
+type WishAnswerResponseDTO = {readonly code: string; readonly value: string};
+type WishUnmappedResponseDTO = {readonly name: string; readonly text: string};
+type WishRankedProductResponseDTO = RankedProductResponseDTO & {readonly reason: string};
 export type WishResponseDTO = {
     readonly wish_id: number | null; // 버튼 답 턴에는 새 문장이 없어 wish 가 저장되지 않는다.
     readonly reply: string;
@@ -29,6 +30,10 @@ export type WishChatState =
     | {readonly status: RequestStatus.LOADING}
     | {readonly status: RequestStatus.ERROR; readonly message: string}
     | {readonly status: RequestStatus.READY};
+export type WishStep =
+    | {readonly status: WishStepStatus.FIRST_MESSAGE}
+    | {readonly status: WishStepStatus.QUESTION; readonly question: QuestionResponseDTO}
+    | {readonly status: WishStepStatus.DONE};
 
 function isWishRankedProduct(value: unknown): value is WishRankedProductResponseDTO {
     return isJsonObject(value) && isText(value.reason) && isRankedProduct(value);

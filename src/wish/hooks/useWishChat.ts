@@ -2,9 +2,9 @@ import {useCallback, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {RoutePath} from "../../common/enums/routePath";
 import {NextStepStatus, RequestStatus} from "../../question/enums/recommendation";
+import {WishStepStatus} from "../enums/wish";
 import {prefillWishAnswers, requestWish, wishError} from "../services/wishService";
-import type {QuestionResponseDTO} from "../../question/types/recommendation";
-import type {WishChatState, WishRequestDTO, WishResponseDTO, WishTurn} from "../types/wish";
+import type {WishChatState, WishRequestDTO, WishResponseDTO, WishStep, WishTurn} from "../types/wish";
 import {useWishLoadingPhase} from "./useWishLoadingPhase";
 
 export function useWishChat() {
@@ -17,12 +17,13 @@ export function useWishChat() {
     const [situation, setSituation] = useState<string>("");
     const [state, setState] = useState<WishChatState>({status: RequestStatus.READY});
     const loadingMessage = useWishLoadingPhase(state.status === RequestStatus.LOADING);
+    // 응답 대기 중 재전송이 겹치면 마지막 요청의 응답만 화면에 반영한다.
     const sequence = useRef<number>(0);
+    // 클릭 핸들러는 렌더 시점의 state 를 붙들고 있어, 같은 틱의 두 번째 전송은 ref 로만 막을 수 있다.
     const busy = useRef<boolean>(false);
 
     const send = useCallback(async (request: WishRequestDTO, shownMessage: string): Promise<void> => {
         const requestId: number = ++sequence.current;
-        // 응답 대기 중 재전송이 겹치면 마지막 요청의 응답만 화면에 반영한다.
         const isLatestRequest = (): boolean => sequence.current === requestId;
 
         busy.current = true;
@@ -33,11 +34,11 @@ export function useWishChat() {
             if (!isLatestRequest()) {
                 return;
             }
-            const extracted: Record<string, string> = Object.fromEntries(
+            const extractedAnswers: Readonly<Record<string, string>> = Object.fromEntries(
                 response.answers.map((answer): readonly [string, string] => [answer.code, answer.value]),
             );
             // 서버와 같은 규칙으로 합친다 — 이미 답한 키는 기존 값을 유지한다.
-            const mergedAnswers: Readonly<Record<string, string>> = {...extracted, ...request.answers};
+            const mergedAnswers: Readonly<Record<string, string>> = {...extractedAnswers, ...request.answers};
             prefillWishAnswers(mergedAnswers);
             setAnswers(mergedAnswers);
             setSituation(request.situation);
@@ -45,6 +46,7 @@ export function useWishChat() {
                 [...previous, {id: requestId, message: shownMessage, response}]);
             setState({status: RequestStatus.READY});
         } catch (error: unknown) {
+            // catch 는 임의의 예외를 받는다 — 서비스가 사용자 메시지로 좁힌다.
             if (!isLatestRequest()) {
                 return;
             }
@@ -78,15 +80,16 @@ export function useWishChat() {
         navigate(RoutePath.QUESTIONS);
     }, [navigate]);
 
-    const lastResponse: WishResponseDTO | null = turns.at(-1)?.response ?? null;
-    const currentQuestion: QuestionResponseDTO | null =
-        state.status === RequestStatus.READY && lastResponse !== null && lastResponse.next.status === NextStepStatus.QUESTION
-            ? lastResponse.next.question
-            : null;
-    const isDone: boolean = lastResponse !== null && lastResponse.next.status === NextStepStatus.DONE;
+    let step: WishStep = {status: WishStepStatus.FIRST_MESSAGE};
+    if (turns.length > 0) {
+        const lastResponse: WishResponseDTO = turns.at(-1)!.response; // length > 0 을 위에서 확인했다.
+        step = lastResponse.next.status === NextStepStatus.QUESTION
+            ? {status: WishStepStatus.QUESTION, question: lastResponse.next.question}
+            : {status: WishStepStatus.DONE};
+    }
 
     return {
-        chat: {turns, state, pendingMessage, loadingMessage, currentQuestion, isDone, answerWithOption, continueWithQuestions},
+        chat: {turns, state, step, pendingMessage, loadingMessage, answerWithOption, continueWithQuestions},
         composer: {draft, setDraft, submit},
     };
 }

@@ -1,3 +1,9 @@
+// 마지막 답변이 대화를 어디까지 끌고 왔는지 — 첫 문장 전, 다음 질문 대기, 순위 확정.
+export enum WishStepStatus {
+    FIRST_MESSAGE = "FIRST_MESSAGE",
+    QUESTION = "QUESTION",
+    DONE = "DONE",
+}
 export enum WishMessages {
     TITLE = "문장으로 적금 찾기",
     HELP = "지금 상황을 문장으로 적어 주세요. 상황에 맞는 적금 순위를 근거와 함께 알려 드려요.",
