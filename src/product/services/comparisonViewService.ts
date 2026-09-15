@@ -31,26 +31,8 @@ const ELIGIBILITY_NOTES: Readonly<Record<EligibilityStatus, string>> = {
     [EligibilityStatus.NOT_ELIGIBLE]: ComparisonMessages.REJECTED_HELP,
 };
 
-const NO_MATURITY: MaturityView = {principal: "", atMaxRate: "", mine: ""};
-
 function wonText(amount: number): string {
     return `${amount.toLocaleString("ko-KR")}원`;
-}
-
-function selectedOption(
-    options: readonly ProductComparisonOptionResponseDTO[],
-    optionKey: string,
-): ProductComparisonOptionResponseDTO | false {
-    let firstOption: ProductComparisonOptionResponseDTO | false = false;
-    for (const option of options) {
-        if (firstOption === false) {
-            firstOption = option;
-        }
-        if (comparisonOptionKey(option) === optionKey) {
-            return option;
-        }
-    }
-    return firstOption;
 }
 
 function rateMeter(option: ProductComparisonOptionResponseDTO): RateMeterView {
@@ -72,6 +54,9 @@ function rateMeter(option: ProductComparisonOptionResponseDTO): RateMeterView {
 }
 
 function maturityView(estimate: MaturityEstimateResponseDTO): MaturityView {
+    if (estimate.principal <= 0) {
+        return {principal: "", atMaxRate: "", mine: ""};
+    }
     return {
         principal: wonText(estimate.principal),
         atMaxRate: wonText(estimate.maturity_at_max_rate),
@@ -97,9 +82,6 @@ function goalMessage(option: ProductComparisonOptionResponseDTO): string {
 }
 
 function productComparisonView(option: ProductComparisonOptionResponseDTO): ProductComparisonView {
-    const estimate: MaturityEstimateResponseDTO = option.estimate;
-    const estimated: boolean = estimate.principal > 0;
-
     return {
         status: ComparisonViewStatus.READY,
         eligibilityStatus: option.eligibility_status,
@@ -108,13 +90,14 @@ function productComparisonView(option: ProductComparisonOptionResponseDTO): Prod
         optionLabel: comparisonOptionLabel(option),
         meter: rateMeter(option),
         showMeter: option.eligibility_status !== EligibilityStatus.NOT_ELIGIBLE,
-        maturity: estimated ? maturityView(estimate) : NO_MATURITY,
-        showMaturity: estimated,
-        estimateMessage: estimate.reason,
+        maturity: maturityView(option.estimate),
+        showMaturity: option.estimate.principal > 0,
+        estimateMessage: option.estimate.reason,
         goalMessage: goalMessage(option),
     };
 }
 
+// 목록 카드(catalogService)는 옵션을 고르지 않고 정렬 첫 옵션을 보여 주므로 optionKey 를 생략한다.
 export function productComparisonSummary(
     state: ComparisonState,
     productId: string,
@@ -133,11 +116,14 @@ export function productComparisonSummary(
         productId,
         months,
     );
-    const option: ProductComparisonOptionResponseDTO | false = selectedOption(options, optionKey);
-    if (option === false) {
+    if (options.length === 0) {
         return {status: ComparisonViewStatus.NO_OPTION, message: ComparisonMessages.NO_OPTION};
     }
-    return productComparisonView(option);
+    // URL 의 option 이 이 기간에 없으면 Array.find 가 undefined 를 돌려주고, 그때는 정렬 첫 옵션을 보여 준다.
+    const matchedOption: ProductComparisonOptionResponseDTO | undefined = options.find(
+        (option: ProductComparisonOptionResponseDTO) => comparisonOptionKey(option) === optionKey,
+    );
+    return productComparisonView(matchedOption ?? options[0]);
 }
 
 export function rankedComparisonSummary(
