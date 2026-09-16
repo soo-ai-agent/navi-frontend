@@ -7,7 +7,6 @@ type Props = {
     readonly onContinueWithQuestions: () => void;
 };
 
-// 서버가 준 다음 질문을 왼쪽 말풍선으로 보여 주고, 선택지를 버튼으로 답하게 한다.
 export default function WishQuestionBubble({question, onSelectOption, onContinueWithQuestions}: Props) {
     return (
         <div className="wish-bubble wish-bot">
