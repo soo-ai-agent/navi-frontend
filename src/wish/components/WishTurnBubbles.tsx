@@ -1,8 +1,16 @@
+import {Link} from "react-router-dom";
 import type {WishTurn} from "../types/wish";
 import {NextStepStatus} from "../../question/enums/recommendation";
+import {RoutePath} from "../../common/enums/routePath";
 import {WishMessages} from "../enums/wish";
 
 type Props = {readonly turn: WishTurn; readonly isLast: boolean};
+
+// 순위 상품은 추천 세션에 저장되지 않으므로 전체 상품과 같은 주소(product_id 쿼리)로 상세에 들어간다.
+function productDetailHref(productId: string): string {
+    const detailPath: string = RoutePath.PRODUCT_DETAIL.replace(":name", encodeURIComponent(productId));
+    return `${detailPath}?product_id=${encodeURIComponent(productId)}`;
+}
 
 // 대화 한 턴: 오른쪽 사용자 말풍선 + 왼쪽 답변 말풍선(답변·순위·미확인 요구·지난 질문).
 // 마지막 턴의 질문은 선택 버튼과 함께 WishQuestionBubble 이 따로 그리므로 여기서는 지난 턴의 질문 제목만 남긴다.
@@ -17,7 +25,8 @@ export default function WishTurnBubbles({turn, isLast}: Props) {
                 <div className="wish-bubble wish-bot">
                     {reply !== "" && <p>{reply}</p>}
                     {ranked.map((product) => (
-                        <div className="card wish-product" key={`${product.rank}:${product.product_id}`}>
+                        <Link className="card wish-product" key={`${product.rank}:${product.product_id}`}
+                            to={productDetailHref(product.product_id)} draggable={false}>
                             <div className="row">
                                 <div className="l">
                                     <div className="n">{product.rank}위 · {product.product_name}</div>
@@ -26,7 +35,7 @@ export default function WishTurnBubbles({turn, isLast}: Props) {
                                 <div className="r">연 {product.rate}%</div>
                             </div>
                             <p className="s wish-reason">{product.reason}</p>
-                        </div>
+                        </Link>
                     ))}
                     {unmapped.length > 0 && (
                         <div className="wish-unmapped">

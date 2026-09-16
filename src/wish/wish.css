@@ -59,6 +59,9 @@
     color: var(--g700);
 }
 #wish .wish-product {
+    display: block;
+    color: inherit;
+    text-decoration: none;
     background: #FFFFFF;
     border: 1px solid var(--g200);
     margin-top: 10px;
