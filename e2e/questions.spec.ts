@@ -6,6 +6,7 @@ const endpoint: string = "**/api/v1/questions/next";
 const ageTitle: string = "나이가 어떻게 되세요? (만)";
 const bankTitle: string = "급여나 연금은 어느 은행으로 받으세요?";
 const goalTitle: string = "만기까지 모으고 싶은 금액이 있나요? (원)";
+const monthlyTitle: string = "매달 얼마씩 넣을까요? (원)";
 
 test("다중 선택한 은행 코드를 은행명으로 요약한다", () => {
     const entries = appendRecommendationAnswer([], {
@@ -23,9 +24,11 @@ test("다중 선택한 은행 코드를 은행명으로 요약한다", () => {
 
 async function reachAgeQuestion(page: Page): Promise<void> {
     await page.goto("/");
-    await page.getByRole("button", {name: "내 조건으로 비교하기", exact: true}).click();
+    await page.getByRole("button", {name: "선택해서 적금 찾기", exact: true}).click();
     await page.getByRole("button", {name: "12개월", exact: true}).click();
-    // 기간 다음은 목표 금액이다. 목표가 없다고 답해 나이 질문으로 넘어간다.
+    // 기간 다음은 월 납입액, 그다음이 목표 금액이다. 둘 다 모른다고 답해 나이 질문으로 넘어간다.
+    await expect(page.getByRole("heading", {name: monthlyTitle, exact: true})).toBeVisible();
+    await page.getByRole("button", {name: "모르겠어요", exact: true}).click();
     await expect(page.getByRole("heading", {name: goalTitle, exact: true})).toBeVisible();
     await page.getByRole("button", {name: "목표 금액은 없어요", exact: true}).click();
 }
@@ -59,9 +62,10 @@ test("질문 키에 답을 누적해 실제 서버 금리를 표시한다", asyn
     expect(payloads).toEqual([
         '{}',
         '{"months":"12"}',
-        '{"months":"12","goal_amount":"none"}',
-        '{"months":"12","goal_amount":"none","age":"19"}',
-        '{"months":"12","goal_amount":"none","age":"19","salary_bank":"bank"}',
+        '{"months":"12","monthly":"none"}',
+        '{"months":"12","monthly":"none","goal_amount":"none"}',
+        '{"months":"12","monthly":"none","goal_amount":"none","age":"19"}',
+        '{"months":"12","monthly":"none","goal_amount":"none","age":"19","salary_bank":"bank"}',
     ]);
 });
 
@@ -154,7 +158,7 @@ test("뒤로 간 뒤 도착한 이전 응답이 현재 질문을 덮지 않는�
     await expect(page.getByRole("heading", {name: ageTitle, exact: true})).toBeVisible();
     const oldResponse: Promise<Response> = page.waitForResponse((response: Response) =>
         response.url().endsWith("/questions/next")
-        && response.request().postData() === '{"months":"12","goal_amount":"none","age":"19"}');
+        && response.request().postData() === '{"months":"12","monthly":"none","goal_amount":"none","age":"19"}');
     gate.resolve();
     await oldResponse;
 
