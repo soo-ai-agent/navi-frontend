@@ -4,7 +4,7 @@ import {NextStepStatus} from "../../question/enums/recommendation";
 import {RoutePath} from "../../common/enums/routePath";
 import {WishMessages} from "../enums/wish";
 
-type Props = {readonly turn: WishTurn; readonly isLast: boolean};
+type Props = {readonly turn: WishTurn; readonly hidesQuestion: boolean};
 
 // 순위 상품은 추천 세션에 저장되지 않으므로 전체 상품과 같은 주소(product_id 쿼리)로 상세에 들어간다.
 function productDetailHref(productId: string): string {
@@ -13,10 +13,10 @@ function productDetailHref(productId: string): string {
 }
 
 // 대화 한 턴: 오른쪽 사용자 말풍선 + 왼쪽 답변 말풍선(답변·순위·미확인 요구·지난 질문).
-// 마지막 턴의 질문은 선택 버튼과 함께 WishQuestionBubble 이 따로 그리므로 여기서는 지난 턴의 질문 제목만 남긴다.
-export default function WishTurnBubbles({turn, isLast}: Props) {
+// 질문 제목은 WishQuestionBubble 이 선택 버튼과 함께 그리는 동안에만 숨긴다.
+export default function WishTurnBubbles({turn, hidesQuestion}: Props) {
     const {reply, ranked, unmapped, next} = turn.response;
-    const pastQuestionTitle: string = !isLast && next.status === NextStepStatus.QUESTION ? next.question.title : "";
+    const pastQuestionTitle: string = !hidesQuestion && next.status === NextStepStatus.QUESTION ? next.question.title : "";
     const hasBotBubble: boolean = reply !== "" || ranked.length > 0 || unmapped.length > 0 || pastQuestionTitle !== "";
     return (
         <article className="wish-turn">

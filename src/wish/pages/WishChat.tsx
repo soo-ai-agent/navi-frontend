@@ -13,6 +13,7 @@ export default function WishChat() {
     const chatRef = useWishScroll();
     const isLoading: boolean = chat.state.status === RequestStatus.LOADING;
     const isDone: boolean = chat.step.status === WishStepStatus.DONE;
+    const hasShownQuestion: boolean = chat.shownQuestion !== null;
     return (
         <section id="wish">
             <header className="top"><BrandHome /></header>
@@ -20,10 +21,11 @@ export default function WishChat() {
             <p className="sub">{WishMessages.HELP}</p>
             <div className="wish-chat" ref={chatRef}>
                 {chat.turns.map((turn, index) => (
-                    <WishTurnBubbles key={turn.id} turn={turn} isLast={index === chat.turns.length - 1} />
+                    <WishTurnBubbles key={turn.id} turn={turn}
+                        hidesQuestion={index === chat.turns.length - 1 && hasShownQuestion} />
                 ))}
-                {chat.state.status === RequestStatus.READY && chat.step.status === WishStepStatus.QUESTION && (
-                    <WishQuestionBubble question={chat.step.question}
+                {chat.shownQuestion !== null && (
+                    <WishQuestionBubble question={chat.shownQuestion}
                         onSelectOption={chat.answerWithOption} onContinueWithQuestions={chat.continueWithQuestions} />
                 )}
                 {isLoading && (

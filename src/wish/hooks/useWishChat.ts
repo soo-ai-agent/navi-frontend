@@ -4,6 +4,7 @@ import {RoutePath} from "../../common/enums/routePath";
 import {NextStepStatus, RequestStatus} from "../../question/enums/recommendation";
 import {WishStepStatus} from "../enums/wish";
 import {prefillWishAnswers, requestWish, wishError} from "../services/wishService";
+import type {QuestionResponseDTO} from "../../question/types/recommendation";
 import type {WishChatState, WishRequestDTO, WishResponseDTO, WishStep, WishTurn} from "../types/wish";
 import {useWishLoadingPhase} from "./useWishLoadingPhase";
 
@@ -87,9 +88,14 @@ export function useWishChat() {
             ? {status: WishStepStatus.QUESTION, question: lastResponse.next.question}
             : {status: WishStepStatus.DONE};
     }
+    // 로딩·에러 중이거나 순위가 확정되면 띄울 버튼 질문이 없다.
+    let shownQuestion: QuestionResponseDTO | null = null;
+    if (state.status === RequestStatus.READY && step.status === WishStepStatus.QUESTION) {
+        shownQuestion = step.question;
+    }
 
     return {
-        chat: {turns, state, step, pendingMessage, loadingMessage, answerWithOption, continueWithQuestions},
+        chat: {turns, state, step, shownQuestion, pendingMessage, loadingMessage, answerWithOption, continueWithQuestions},
         composer: {draft, setDraft, submit},
     };
 }
