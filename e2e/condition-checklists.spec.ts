@@ -9,6 +9,7 @@ const checklistProduct: RankedProductResponseDTO = {
     product_id: "checklist-product",
     rank: 1,
     bank_name: "테스트 은행",
+    homepage_url: "https://bank.example.com",
     product_name: "체크리스트 적금",
     rate: "3.00",
     base_rate: "3.00",

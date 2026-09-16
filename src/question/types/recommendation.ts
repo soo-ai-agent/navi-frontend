@@ -25,6 +25,7 @@ export type RankedProductResponseDTO = {
     readonly product_id: string;
     readonly rank: number;
     readonly bank_name: string;
+    readonly homepage_url: string; // 가입 안내로 보낼 주소. 상품 안내 페이지를 알면 그 주소, 모르면 은행 대표 홈페이지다.
     readonly product_name: string;
     readonly rate: string;
     readonly base_rate: string;
@@ -126,6 +127,7 @@ export function isRankedProduct(value: unknown): value is RankedProductResponseD
     return isText(value.product_id)
         && isInteger(value.rank)
         && isText(value.bank_name)
+        && isFilledText(value.homepage_url)
         && isText(value.product_name)
         && isDecimalText(value.rate)
         && isDecimalText(value.base_rate)
