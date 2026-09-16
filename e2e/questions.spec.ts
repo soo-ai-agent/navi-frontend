@@ -176,7 +176,7 @@ test("잘못된 서버 응답을 샘플 순위로 대체하지 않는다", async
     await page.getByRole("button", {name: "bank", exact: true}).click();
     await page.getByRole("button", {name: "다음", exact: true}).click();
 
-    await expect(page.getByRole("alert")).toHaveText("응답을 읽지 못했어요. 다시 시도해 주세요.");
+    await expect(page.getByRole("alert")).toHaveText("AI 답변이 느려서 응답을 처리하지 못했어요. AI 응답 상태를 확인해 주세요.");
 });
 
 for (const body of ['{"detail":123}', 'not-json', '{"detail":"  "}']) {
@@ -188,6 +188,6 @@ for (const body of ['{"detail":123}', 'not-json', '{"detail":"  "}']) {
         await page.getByRole("textbox", {name: ageTitle, exact: true}).fill("19");
         await page.getByRole("button", {name: "다음", exact: true}).click();
 
-        await expect(page.getByRole("alert")).toHaveText("상품 조건 데이터를 확인할 수 없어 비교할 수 없어요. 잠시 후 다시 시도해 주세요.");
+        await expect(page.getByRole("alert")).toHaveText("AI 응답 처리 중 조건 데이터를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.");
     });
 }

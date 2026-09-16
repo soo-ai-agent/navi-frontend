@@ -1,4 +1,3 @@
-// 마지막 답변이 대화를 어디까지 끌고 왔는지 — 첫 문장 전, 다음 질문 대기, 순위 확정.
 export enum WishStepStatus {
     FIRST_MESSAGE = "FIRST_MESSAGE",
     QUESTION = "QUESTION",
@@ -20,6 +19,6 @@ export enum WishMessages {
     NETWORK_ERROR = "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
     INPUT_ERROR = "문장을 이해하지 못했어요. 다르게 적어 다시 보내 주세요.",
     AI_UNAVAILABLE = "AI 사용이 현재 어려워 문장 추천이 안 되고 있어요. 잠시 후 다시 시도하시거나, 버튼으로 질문에 답하시면 바로 추천받을 수 있어요.",
-    SERVER_ERROR = "상황을 분석하지 못했어요. 잠시 후 다시 시도해 주세요.",
-    RESPONSE_ERROR = "응답을 읽지 못했어요. 다시 시도해 주세요.",
+    SERVER_ERROR = "AI 응답 처리 중 문제가 있었어요. 잠시 후 다시 시도해 주세요.",
+    RESPONSE_ERROR = "AI 답변이 느려서 응답을 처리하지 못했어요. AI 응답 상태를 확인해 주세요.",
 }
