@@ -35,7 +35,7 @@ export enum RecommendationMessages {
     BANK_NAME_UNAVAILABLE = "은행명 확인 필요",
     SHOW_RESULT = "결과 보기",
     EDIT_CONDITIONS = "조건 고치기",
-    START = "선택해서 비교하기",
+    START = "선택해서 적금 찾기",
     ALL_PRODUCTS = "전체 상품 보기",
     BACK = "뒤로",
     SKIP = "건너뛰기",
