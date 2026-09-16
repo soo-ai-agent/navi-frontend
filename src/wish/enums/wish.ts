@@ -11,6 +11,7 @@ export enum WishMessages {
     SEND = "보내기",
     LOADING_READING = "문장을 읽는 중...",
     LOADING_ANALYZING = "상황을 분석하는 중...",
+    LOADING_AI_ANSWER = "AI 답변을 기다리는 중...",
     LOADING_MATCHING = "우대조건을 맞춰 보는 중...",
     LOADING_RANKING = "상품 순위를 고르는 중...",
     LOADING_ESTIMATE = "보통 1~2분 정도 걸려요",
